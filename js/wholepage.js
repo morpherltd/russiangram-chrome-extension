@@ -38,14 +38,18 @@ function collectText(tagList) {
 }
 
 function updateText(collectedText, tagList) {
+    var success = true;
 
     forEachTextNode(tagList, function (node, uid) {
         if (node.uid !== uid) {
-            alert('Oops, something went wrong. Please Try Again.\n\nThe RussianGram.com team.');
-            throw new Error('While waiting for a response from the server, the DOM was changed.');
+            success = false;
         }
-        node.nodeValue = collectedText[uid];
+        node.nodeValue = collectedText[node.uid];
     });
+
+    if (!success) {
+        alert('Some parts of the page have not been stress marked. Please try again.');
+    }
 }
 
 function forEachTextNode(tagList, callback) {
