@@ -25,11 +25,11 @@ function injectCSS() {
 
 function getPopupInfo(word, context, getPopupInfoCallback) {
     var msg = {
-        type: 'load-popup-content',
         context: context,
         index: context.indexOf(word)
     }
-    chrome.runtime.sendMessage(msg, getPopupInfoCallback)
+
+    loadPopupContent(msg, getPopupInfoCallback);
 }
 
 function showPopup(content) {
@@ -107,6 +107,24 @@ function onDoubleClick(e) {
     }
 }
 
+function loadPopupContent(msg, responseCallback) {
+    $.ajax({
+        url: App.config.getPopupInfo.url,
+        data: {
+            context: msg.context,
+            index: msg.index
+        },
+        method: 'POST',
+        timeout: App.config.getPopupInfo.timeout,
+        success: function (data) {
+            responseCallback({content: data})
+        },
+        error: function () {
+            responseCallback({err: 'Could not reach russiangram.com'})
+        }
+    })
+}
+
 $(document).ready(function () {
     $('body').dblclick(function (e) {
         if (e.altKey) {
@@ -117,4 +135,3 @@ $(document).ready(function () {
 
 /* Add CSS files */
 injectCSS()
-
