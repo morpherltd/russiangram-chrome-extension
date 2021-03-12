@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "RussianGram",
   "description": "Adds stress marks to Russian websites",
-  "version": "1.3.3",
+  "version": "1.3.4",
   "icons": {
     "128": "icon/icon.png",
     "16": "icon/icon.png",
@@ -41,7 +41,6 @@
   "web_accessible_resources": [
     "html/*",
     "css/*",
-    "js/*",
-    "fonts/*"
+    "js/*"
   ]
 }
