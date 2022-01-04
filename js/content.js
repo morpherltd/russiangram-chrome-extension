@@ -37,6 +37,7 @@ function showPopup(content) {
     $el.parent().addClass('twbs')
     $el.popover({
         content: content,
+        title: 'Title',
         html:true,
         placement: 'bottom',
         trigger: 'manual',
