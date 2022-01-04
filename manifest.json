@@ -24,7 +24,7 @@
       "js": [
         "js/config.js",
         "js/jquery.min.js",
-        "js/bootstrap.min.js",
+        "js/bootstrap.bundle.min.js",
         "js/content.js",
         "js/wholepage.js"
       ],
