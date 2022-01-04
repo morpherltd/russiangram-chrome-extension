@@ -58,7 +58,7 @@ function showPopup(content) {
         })
     })
     $el.on('hidden.bs.popover', function () {
-        $(this).popover('destroy')
+        $(this).popover('dispose')
     })
 
     $el.popover('show')
