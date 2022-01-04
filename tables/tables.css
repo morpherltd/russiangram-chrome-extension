@@ -1,0 +1,37 @@
+table {
+    border-collapse: collapse;
+    margin-bottom: 1em;
+}
+
+td, th {
+    border: 1px solid rgb(223, 192, 163);
+    padding-left: 1ex;
+    padding-right: 1ex;
+}
+
+th {
+    text-align: left;
+    border: 1px solid rgb(167, 129, 95);
+    color: rgb(116, 80, 48);
+    background-color:rgb(246, 226, 205);
+}
+
+tbody th {
+    background-color:rgb(251, 245, 238);
+}
+
+td {
+    color: rgb(46, 46, 46);
+}
+
+.stressed {
+    color:indianred;
+}
+
+.main-tables {
+    display:inline-block;
+}
+
+.main-tables table {
+    width: 100%;
+}
