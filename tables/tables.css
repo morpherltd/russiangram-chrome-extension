@@ -35,3 +35,11 @@ td {
 .main-tables table {
     width: 100%;
 }
+
+.lemma {
+    font-weight: bold;
+}
+
+td.highlighted {
+    border: 3px solid rgb(98, 204, 98);
+}
