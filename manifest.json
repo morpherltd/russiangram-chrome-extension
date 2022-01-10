@@ -24,7 +24,8 @@
       "js": [
         "js/config.js",
         "js/jquery.min.js",
-        "js/bootstrap.bundle.min.js",
+        "js/popper.min.js",
+        "js/bootstrap.min.js",
         "js/content.js",
         "js/wholepage.js"
       ],
@@ -41,7 +42,6 @@
   "web_accessible_resources": [
     "html/*",
     "css/*",
-    "fonts/*",
     "js/*"
   ]
 }
