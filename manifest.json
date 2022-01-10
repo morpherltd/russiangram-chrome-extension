@@ -25,7 +25,6 @@
         "js/config.js",
         "js/jquery.min.js",
         "js/popper.min.js",
-        "js/bootstrap.min.js",
         "js/content.js",
         "js/wholepage.js"
       ],

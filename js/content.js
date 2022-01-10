@@ -22,6 +22,17 @@ function injectCSS() {
         }
     });
 }
+function injectJs(){
+    $.ajax({
+        url: chrome.extension.getURL('js/bootstrap.min.js'),
+        success: function (data) {
+            let scriptTag=document.createElement("script")
+            scriptTag.innerHTML=data
+            scriptTag.id="bs_script"
+            document.body.appendChild(scriptTag);
+        }
+    });
+}
 
 function getPopupInfo(word, context, getPopupInfoCallback) {
     var msg = {
@@ -57,6 +68,7 @@ function showPopup(content,selectedword) {
     })
     $el.on('hidden.bs.popover', function () {
         $(this).popover('dispose')
+        $("#bs_script").remove()
     })
 
     $el.popover('show')
@@ -71,7 +83,8 @@ function onDoubleClick(e) {
 
     if (word !== '') {
         var range = window.getSelection().getRangeAt(0)
-
+        //injecting bootstrap on demand to avoid conflict with websites
+        injectJs()
         var beforeWordRange = document.createRange()
         beforeWordRange.setStartBefore(document.body.firstChild)
         beforeWordRange.setEnd(range.startContainer, range.startOffset)
