@@ -20,7 +20,7 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": [],
+      "css": ["css/bs.css"],
       "js": [
         "js/config.js",
         "js/jquery.min.js",
@@ -42,6 +42,7 @@
   "web_accessible_resources": [
     "html/*",
     "css/*",
-    "js/*"
+    "js/*",
+    "fonts/*"
   ]
 }

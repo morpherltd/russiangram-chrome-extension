@@ -32,20 +32,18 @@ function getPopupInfo(word, context, getPopupInfoCallback) {
     loadPopupContent(msg, getPopupInfoCallback);
 }
 
-function showPopup(content) {
+function showPopup(content,selectedword) {
     var $el = $('.'+waitResponseClass)
     $el.parent().addClass('twbs')
+    
     $el.popover({
         content: content,
-        title: 'Title',
+        title: selectedword,
+        container:"body",
         html:true,
         placement: 'bottom',
         trigger: 'manual',
-        template:'<div class="popover" role="tooltip" style="color:black;">' +
-        '<div class="arrow"></div>' +
-        '<h3 class="popover-title"></h3>' +
-        '<div class="popover-content"></div>' +
-        '</div>'
+        template:'<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-header"></h3><div class="popover-body"></div></div>'
     })
     $el.on('shown.bs.popover', function () {
         $(document).one('click', function (event) {
@@ -100,10 +98,10 @@ function onDoubleClick(e) {
         getPopupInfo(word, context, function (response) {
 
             if (response.err) {
-                showPopup('<div class="text-danger">'+response.err+'</div>')
+                showPopup('<div class="text-danger">'+response.err+'</div>',word)
                 return
             }
-            showPopup(response.content)
+            showPopup(response.content,word)
         })
     }
 }
