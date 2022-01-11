@@ -20,11 +20,11 @@
       "matches": [
         "<all_urls>"
       ],
-      "css": [],
+      "css": ["css/bs.css"],
       "js": [
         "js/config.js",
         "js/jquery.min.js",
-        "js/bootstrap.bundle.min.js",
+        "js/popper.min.js",
         "js/content.js",
         "js/wholepage.js"
       ],
@@ -41,7 +41,7 @@
   "web_accessible_resources": [
     "html/*",
     "css/*",
-    "fonts/*",
-    "js/*"
+    "js/*",
+    "fonts/*"
   ]
 }

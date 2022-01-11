@@ -22,6 +22,17 @@ function injectCSS() {
         }
     });
 }
+function injectJs(){
+    $.ajax({
+        url: chrome.extension.getURL('js/bootstrap.min.js'),
+        success: function (data) {
+            let scriptTag=document.createElement("script")
+            scriptTag.innerHTML=data
+            scriptTag.id="bs_script"
+            document.body.appendChild(scriptTag);
+        }
+    });
+}
 
 function getPopupInfo(word, context, getPopupInfoCallback) {
     var msg = {
@@ -32,20 +43,18 @@ function getPopupInfo(word, context, getPopupInfoCallback) {
     loadPopupContent(msg, getPopupInfoCallback);
 }
 
-function showPopup(content) {
+function showPopup(content,selectedword) {
     var $el = $('.'+waitResponseClass)
     $el.parent().addClass('twbs')
+    
     $el.popover({
         content: content,
-        title: 'Title',
+        title: selectedword,
+        container:"body",
         html:true,
         placement: 'bottom',
         trigger: 'manual',
-        template:'<div class="popover" role="tooltip" style="color:black;">' +
-        '<div class="arrow"></div>' +
-        '<h3 class="popover-title"></h3>' +
-        '<div class="popover-content"></div>' +
-        '</div>'
+        template:'<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>'
     })
     $el.on('shown.bs.popover', function () {
         $(document).one('click', function (event) {
@@ -59,6 +68,7 @@ function showPopup(content) {
     })
     $el.on('hidden.bs.popover', function () {
         $(this).popover('dispose')
+        $("#bs_script").remove()
     })
 
     $el.popover('show')
@@ -73,7 +83,8 @@ function onDoubleClick(e) {
 
     if (word !== '') {
         var range = window.getSelection().getRangeAt(0)
-
+        //injecting bootstrap on demand to avoid conflict with websites
+        injectJs()
         var beforeWordRange = document.createRange()
         beforeWordRange.setStartBefore(document.body.firstChild)
         beforeWordRange.setEnd(range.startContainer, range.startOffset)
@@ -100,10 +111,10 @@ function onDoubleClick(e) {
         getPopupInfo(word, context, function (response) {
 
             if (response.err) {
-                showPopup('<div class="text-danger">'+response.err+'</div>')
+                showPopup('<div class="text-danger">'+response.err+'</div>',word)
                 return
             }
-            showPopup(response.content)
+            showPopup(response.content,word)
         })
     }
 }
