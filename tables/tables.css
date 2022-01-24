@@ -38,6 +38,7 @@ td {
 
 .lemma {
     font-weight: bold;
+    margin-right: 2ex;
 }
 
 td.highlighted {
