@@ -1,10 +1,10 @@
 chrome.extension.onMessage.addListener(
-    function (request, sender, sendResponse) {
-        if (request.msg == "get_content") {
+    function(request, sender, sendResponse) {
+        if (request.msg == 'get_content') {
             var tagList = document.getElementsByTagName('*');
 
             var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function () {
+            xmlhttp.onreadystatechange = function() {
                 if (xmlhttp.readyState === 4) {
                     if (xmlhttp.status === 200) {
                         var data = JSON.parse(xmlhttp.responseText);
@@ -13,13 +13,17 @@ chrome.extension.onMessage.addListener(
                         alert('Cannot reach russiangram.com');
                     }
                 }
-            }
+            };
 
             var collectedText = collectText(tagList);
             var data = JSON.stringify(collectedText);
 
-            xmlhttp.open("POST", "https://russiangram.com/translate/Default.aspx", true);
-            xmlhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xmlhttp.open('POST',
+                'https://russiangram.com/translate/Default.aspx',
+                true,
+            );
+            xmlhttp.setRequestHeader('Content-type',
+                'application/x-www-form-urlencoded');
             xmlhttp.send(data);
             sendResponse({data: 'success'});
         }
@@ -29,7 +33,7 @@ function collectText(tagList) {
 
     var collectedText = {};
 
-    forEachTextNode(tagList, function (node, uid) {
+    forEachTextNode(tagList, function(node, uid) {
         collectedText[uid] = node.nodeValue;
         node.uid = uid;
     });
@@ -40,7 +44,7 @@ function collectText(tagList) {
 function updateText(collectedText, tagList) {
     var success = true;
 
-    forEachTextNode(tagList, function (node, uid) {
+    forEachTextNode(tagList, function(node, uid) {
         if (node.uid !== uid) {
             success = false;
         }
@@ -48,7 +52,8 @@ function updateText(collectedText, tagList) {
     });
 
     if (!success) {
-        alert('Some parts of the page have not been stress marked. Please try again.');
+        alert(
+            'Some parts of the page have not been stress marked. Please try again.');
     }
 }
 
