@@ -62,12 +62,7 @@ function injectJs() {
                 return aString.toLowerCase();
             });
 
-            Handlebars.registerHelper('stressed', function(aString) {
-                return aString.replace(
-                    /((.)(\u0301))/mg,
-                    '<span class="stressed">$2</span>'
-                );
-            });
+            Handlebars.registerHelper('stressed', stressedString);
 
             Handlebars.registerHelper('join', function(array) {
                 return '<div class="cell__value">' +
@@ -102,13 +97,19 @@ function injectJs() {
     });
 }
 
+function stressedString(str) {
+    return str.replace(
+        /((.)(\u0301))/mg,
+        '<span class="stressed">$2</span>'
+    );
+}
+
 function showPopup(content, selectedWord) {
     var $el = $('.' + waitResponseClass);
     $el.parent().addClass('twbs');
 
     $el.popover({
-        content: content,
-        title: selectedWord,
+        title: stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
         container: 'body',
         html: true,
         placement: 'bottom',
@@ -134,10 +135,6 @@ function showPopup(content, selectedWord) {
             $el.popover('hide');
         }
     });
-
-    $el.popover('show');
-
-    $el.removeClass(waitResponseClass);
 }
 
 function onDoubleClick() {
@@ -205,6 +202,8 @@ function loadDeclensionTableCallback(response) {
         return;
     }
 
+    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+
     if (response.content.length > 0) {
         var data = repackResponseData(response);
         var mainVariant = data.variants[0];
@@ -225,7 +224,7 @@ function repackResponseData(response) {
     for (var i = 0; i < response.content.length; i++) {
         var element = response.content[i];
         data.variants.push({
-            lemma: response.lemma,
+            lemma: element.value.singular.nominative[0],
             type: element.type,
             gender: element.value.gender,
             isAnimate: element.value.isAnimate,
