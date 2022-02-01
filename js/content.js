@@ -23,46 +23,99 @@ function injectCSS() {
             document.head.appendChild(styleNode);
         },
     });
+    $.ajax({
+        url: chrome.extension.getURL('css/tables.css'),
+        success: function(data) {
+            var faCSS = data.replace(/\.\.\/fonts/g,
+                chrome.extension.getURL('fonts'));
+            var styleNode = document.createElement('style');
+            styleNode.type = 'text/css';
+            styleNode.textContent = faCSS;
+            document.head.appendChild(styleNode);
+        },
+    });
 }
 
 function injectJs() {
     $.ajax({
         url: chrome.extension.getURL('js/bootstrap.min.js'),
         success: function(data) {
-            let scriptTag = document.createElement('script');
+            var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'bs_script';
             document.body.appendChild(scriptTag);
         },
     });
+    $.ajax({
+        url: chrome.extension.getURL('js/handlebars.min.js'),
+        success: function(data) {
+            var scriptTag = document.createElement('script');
+            scriptTag.innerHTML = data;
+            scriptTag.id = 'hb_script';
+            document.body.appendChild(scriptTag);
+
+            Handlebars.registerHelper('upper', function(aString) {
+                return aString.toUpperCase();
+            });
+
+            Handlebars.registerHelper('lower', function(aString) {
+                return aString.toLowerCase();
+            });
+
+            Handlebars.registerHelper('stressed', function(aString) {
+                return aString.replace(
+                    /((.)(\u0301))/mg,
+                    '<span class="stressed">$2</span>'
+                );
+            });
+
+            Handlebars.registerHelper('join', function(array) {
+                return '<div class="cell__value">' +
+                    array.join('</div><div class="cell__value">') + '</div>';
+            });
+
+            Handlebars.registerHelper('chain', function() {
+                var helpers = [];
+                var args = Array.prototype.slice.call(arguments);
+                var argsLength = args.length;
+                var index;
+                var arg;
+
+                for (index = 0, arg = args[index];
+                    index < argsLength;
+                    arg = args[++index]) {
+                    if (Handlebars.helpers[arg]) {
+                        helpers.push(Handlebars.helpers[arg]);
+                    } else {
+                        args = args.slice(index);
+                        break;
+                    }
+                }
+
+                while (helpers.length) {
+                    args = [helpers.pop().apply(Handlebars.helpers, args)];
+                }
+
+                return args.shift();
+            });
+        },
+    });
 }
 
-function getPopupInfo(word, context, getPopupInfoCallback) {
-    var msg = {
-        context: context,
-        index: context.indexOf(word),
-    };
-
-    loadPopupContent(msg, getPopupInfoCallback);
-}
-
-function showPopup(content, selectedword) {
+function showPopup(content, selectedWord) {
     var $el = $('.' + waitResponseClass);
     $el.parent().addClass('twbs');
 
     $el.popover({
         content: content,
-        title: selectedword,
+        title: selectedWord,
         container: 'body',
         html: true,
         placement: 'bottom',
         trigger: 'manual',
-        template: '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>',
+        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>',
     });
     $el.on('shown.bs.popover', function() {
-        $(document).one('click', function(event) {
-            $el.popover('hide');
-        });
         $(document).one('keyup', function(event) {
             if (event.which === 27) {
                 $el.popover('hide');
@@ -74,12 +127,20 @@ function showPopup(content, selectedword) {
         $('#bs_script').remove();
     });
 
+    $(document).on('click', function(e) {
+        var container = $('.morpher-popup.popover');
+
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            $el.popover('hide');
+        }
+    });
+
     $el.popover('show');
 
-    $('.' + waitResponseClass).removeClass(waitResponseClass);
+    $el.removeClass(waitResponseClass);
 }
 
-function onDoubleClick(e) {
+function onDoubleClick() {
     var word = window.getSelection && window.getSelection().toString();
     word = word.trim();
     App.config.debug && console.log('word: ' + word);
@@ -113,19 +174,94 @@ function onDoubleClick(e) {
             '<span class="' + waitResponseClass + '"></span>')[0];
         range.surroundContents(highlightDiv);
 
-        getPopupInfo(word, context, function(response) {
-
-            if (response.err) {
-                showPopup('<div class="text-danger">' + response.err + '</div>',
-                    word);
-                return;
-            }
-            showPopup(response.content, word);
-        });
+        loadPopupContent({
+            context: context,
+            index: context.indexOf(word),
+            word: word,
+        }, loadPopupContentCallback);
     }
 }
 
-function loadPopupContent(msg, responseCallback) {
+function loadPopupContentCallback(response, msg) {
+    if (response.err) {
+        showPopup(
+            '<div class="text-danger">' + response.err + '</div>',
+            msg.word,
+        );
+        return;
+    }
+    showPopup(response.content, msg.word);
+
+    msg.lemma = response.content.split('<br/>')[0];
+
+    loadDeclensionTable(msg, loadDeclensionTableCallback);
+}
+
+function loadDeclensionTableCallback(response) {
+    if (response.err) {
+        $('.morpher-popup .popover-body').append(
+            '<div class="text-danger">' + response.err + '</div>'
+        );
+        return;
+    }
+
+    if (response.content.length > 0) {
+        var data = repackResponseData(response);
+        var mainVariant = data.variants[0];
+
+        var tpl = loadTemplate(mainVariant.type.toLowerCase());
+        var compiled = Handlebars.compile(tpl);
+
+        $('.morpher-popup .popover-body').append(compiled(data));
+        highlightLemma(mainVariant.lemma.replace(/\u0301/mg, ''));
+    }
+}
+
+function repackResponseData(response) {
+    var data = {
+        variants: [],
+    };
+
+    for (var i = 0; i < response.content.length; i++) {
+        var element = response.content[i];
+        data.variants.push({
+            lemma: response.lemma,
+            type: element.type,
+            gender: element.value.gender,
+            isAnimate: element.value.isAnimate,
+            isProper: element.value.isProper,
+            locative2: element.value.locative2,
+            patronymics: element.value.patronymics,
+            plural: element.value.plural,
+            singular: element.value.singular,
+        });
+    }
+
+    return data;
+}
+
+function highlightLemma(lemma) {
+    $('.morpher-popup .table__body .cell__value').
+        each(function(index, element) {
+            var $el = $(element);
+            console.log($el.text() + ' ? ' + lemma);
+            if ($el.text() === lemma) {
+                $el.addClass('cell__value_highlighted');
+            }
+        });
+}
+
+function loadTemplate(name) {
+    return $.ajax({
+        type: 'GET',
+        url: chrome.extension.getURL(
+            '/html/tables/' + name + '.hbs'
+        ),
+        async: false,
+    }).responseText;
+}
+
+function loadPopupContent(msg, callBack) {
     $.ajax({
         url: App.config.getPopupInfo.url,
         data: {
@@ -135,16 +271,41 @@ function loadPopupContent(msg, responseCallback) {
         method: 'POST',
         timeout: App.config.getPopupInfo.timeout,
         success: function(data) {
-            responseCallback({content: data});
+            callBack({content: data}, msg);
         },
         error: function() {
-            responseCallback({err: 'Could not reach russiangram.com'});
+            callBack({
+                err: 'Could not reach russiangram.com',
+            });
         },
     });
 }
 
-$(document).ready(function() {
-    $('body').dblclick(function(e) {
+function loadDeclensionTable(msg, callBack) {
+    $.ajax({
+        url: App.config.declensionTable.url,
+        data: {
+            word: msg.word,
+        },
+        method: 'GET',
+        timeout: App.config.getPopupInfo.timeout,
+        success: function(data) {
+            callBack({
+                content: data,
+                word: msg.word,
+                lemma: msg.lemma,
+            });
+        },
+        error: function() {
+            callBack({
+                err: 'Could not reach morpher.ru',
+            });
+        },
+    });
+}
+
+$(document).on('ready', function() {
+    $('body').on('dblclick', function(e) {
         if (e.altKey) {
             onDoubleClick(e);
         }

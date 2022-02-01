@@ -1,0 +1,223 @@
+{{#*inline "noun-table"}}
+    <table class="table">
+        <thead class="table__head">
+        <tr class="table__row">
+            <th class="table__cell table__cell_head"></th>
+            <th class="table__cell table__cell_head">Singular</th>
+            <th class="table__cell table__cell_head">Plural</th>
+        </tr>
+        </thead>
+        <tbody class="table__body">
+        <tr class="table__row">
+            <th class="table__cell table__cell_head">
+                Nominative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  singular.nominative}}}
+            </td>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  plural.nominative}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head">
+                Genitive
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  singular.genitive}}}
+            </td>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  plural.genitive}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head">
+                Dative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  singular.dative}}}
+            </td>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  plural.dative}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head">
+                Accusative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  singular.accusative}}}
+            </td>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  plural.accusative}}}
+            </td>
+        </tr>
+
+        <tr>
+            <th class="table__cell table__cell_head">
+                Instrumental
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  singular.instrumental}}}
+            </td>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  plural.instrumental}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head">
+                Locative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  singular.locative}}}
+            </td>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  plural.locative}}}
+            </td>
+        </tr>
+
+        {{#if locative2}}
+            <tr class="table__row">
+                <th class="table__cell table__cell_head">
+                    Locative<sub>2</sub>
+                </th>
+                <td class="table__cell cell_composed">
+                    {{{chain 'stressed' 'join'  locative2}}}
+                </td>
+                <td class="table__cell">
+
+                </td>
+            </tr>
+        {{/if}}
+        </tbody>
+
+        {{#if patronymics}}
+            {{#each patronymics}}
+
+                {{#with masculine}}
+                    {{> patronymic-table}}
+                {{/with}}
+
+                {{#with feminine}}
+                    {{> patronymic-table}}
+                {{/with}}
+
+            {{/each}}
+        {{/if}}
+    </table>
+{{/inline}}
+
+{{#*inline "patronymic-table"}}
+    <thead class="table__head">
+    <tr class="table__row">
+        <th class="table__cell table__cell_head"></th>
+        <th class="table__cell table__cell_head" colspan="2">Masculine Patronymic</th>
+    </tr>
+    </thead>
+    <tbody class="table__body">
+    <tr class="table__row">
+        <th class="table__cell table__cell_head">
+            Nominative
+        </th>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  singular.nominative}}}
+        </td>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  plural.nominative}}}
+        </td>
+    </tr>
+
+    <tr class="table__row">
+        <th class="table__cell table__cell_head">
+            Genitive
+        </th>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  singular.genitive}}}
+        </td>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  plural.genitive}}}
+        </td>
+    </tr>
+
+    <tr class="table__row">
+        <th class="table__cell table__cell_head">
+            Dative
+        </th>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  singular.dative}}}
+        </td>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  plural.dative}}}
+        </td>
+    </tr>
+
+    <tr class="table__row">
+        <th class="table__cell table__cell_head">
+            Accusative
+        </th>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  singular.accusative}}}
+        </td>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  plural.accusative}}}
+        </td>
+    </tr>
+
+    <tr>
+        <th class="table__cell table__cell_head">
+            Instrumental
+        </th>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  singular.instrumental}}}
+        </td>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  plural.instrumental}}}
+        </td>
+    </tr>
+
+    <tr class="table__row">
+        <th class="table__cell table__cell_head">
+            Locative
+        </th>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  singular.locative}}}
+        </td>
+        <td class="table__cell cell_composed">
+            {{{chain 'stressed' 'join'  plural.locative}}}
+        </td>
+    </tr>
+    </tbody>
+{{/inline}}
+
+{{#if variants }}
+    <div class="accordion" id="declensionTables">
+
+        {{#each variants}}
+            <div class="accordion-item">
+
+                <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+                    <button class="accordion-button" type="button" data-toggle="collapse"
+                            data-target="#declensionTable{{@index}}"
+                            aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+                        <span class="lemma">{{{stressed lemma}}}</span>
+                        {{#if isProper}}proper{{/if}} {{lower type}}, {{lower gender}}, {{#if isAnimate}}
+                        animate{{else}}inanimate{{/if}}
+                    </button>
+                </div>
+
+                <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+                     aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+                    <div class="accordion-body">
+                        {{> noun-table}}
+                    </div>
+                </div>
+
+            </div>
+        {{/each}}
+
+    </div>
+{{/if}}

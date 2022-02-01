@@ -1,6 +1,6 @@
 chrome.extension.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.msg == 'get_content') {
+        if (request.msg === 'get_content') {
             var tagList = document.getElementsByTagName('*');
 
             var xmlhttp = new XMLHttpRequest();
@@ -26,8 +26,13 @@ chrome.extension.onMessage.addListener(
                 'application/x-www-form-urlencoded');
             xmlhttp.send(data);
             sendResponse({data: 'success'});
+
+            return true;
         }
-    });
+
+        return false;
+    }
+);
 
 function collectText(tagList) {
 
