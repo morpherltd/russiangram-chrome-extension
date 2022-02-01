@@ -34,10 +34,6 @@
     background-color: rgb(251, 245, 238);
 }
 
-.morpher-popup .cell__value_highlighted {
-    border: 3px solid rgb(98, 204, 98);
-}
-
 .morpher-popup .cell_composed {
     padding: 0;
 }
@@ -45,6 +41,15 @@
 .morpher-popup .cell__value {
     padding-left: 1ex;
     padding-right: 1ex;
+    width: 100%;
+    height: 24px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.morpher-popup .cell__value_highlighted {
+    box-shadow: inset 0 0 0 2px rgb(98 204 98);
 }
 
 .morpher-popup .cell__value + .cell__value {
