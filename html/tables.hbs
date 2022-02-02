@@ -514,6 +514,88 @@
     </p>
 {{/inline}}
 
+{{#*inline "type-numeral"}}
+    <div class="accordion-item">
+
+        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+            <button class="accordion-button" type="button" data-toggle="collapse"
+                    data-target="#declensionTable{{@index}}"
+                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+                <span class="lemma">{{{chain 'stressed' 'first' cases.nominative}}}</span> {{lower type}}
+            </button>
+        </div>
+
+        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+            <div class="accordion-body">
+                {{> numeral-table}}
+            </div>
+        </div>
+
+    </div>
+{{/inline}}
+
+{{#*inline "numeral-table"}}
+    <table class="table">
+        <tbody class="table__body">
+        <tr class="table__row">
+            <th class="table__cell table__cell_head" colspan="2">
+                Nominative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  cases.nominative}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head" colspan="2">
+                Genitive
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  cases.genitive}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head" colspan="2">
+                Dative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  cases.dative}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head" colspan="2">
+                Accusative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  cases.accusative}}}
+            </td>
+        </tr>
+
+        <tr>
+            <th class="table__cell table__cell_head" colspan="2">
+                Instrumental
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  cases.instrumental}}}
+            </td>
+        </tr>
+
+        <tr class="table__row">
+            <th class="table__cell table__cell_head" colspan="2">
+                Locative
+            </th>
+            <td class="table__cell cell_composed">
+                {{{chain 'stressed' 'join'  cases.locative}}}
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+{{/inline}}
+
 {{#if variants }}
     <div class="popover-body">
         <div class="accordion" id="declensionTables">
@@ -533,6 +615,10 @@
 
                 {{#compare type '===' 'Uninflected'}}
                     {{> type-uninflected}}
+                {{/compare}}
+
+                {{#compare type '===' 'Numeral'}}
+                    {{> type-numeral}}
                 {{/compare}}
 
             {{/each}}
