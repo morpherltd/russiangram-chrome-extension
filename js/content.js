@@ -69,6 +69,10 @@ function injectJs() {
                     array.join('</div><div class="cell__value">') + '</div>';
             });
 
+            Handlebars.registerHelper('first', function(array) {
+                return array[0];
+            });
+
             Handlebars.registerHelper('chain', function() {
                 var helpers = [];
                 var args = Array.prototype.slice.call(arguments);
@@ -93,6 +97,67 @@ function injectJs() {
 
                 return args.shift();
             });
+
+            Handlebars.registerHelper('compare',
+                function(lvalue, operator, rvalue, options) {
+
+                    if (arguments.length < 3) {
+                        throw new Error(
+                            'Handlebars Helper \'compare\' needs 2 parameters');
+                    }
+
+                    if (options === undefined) {
+                        options = rvalue;
+                        rvalue = operator;
+                        operator = '===';
+                    }
+
+                    var operators = {
+                        '==': function(l, r) {
+                            return l == r;
+                        },
+                        '===': function(l, r) {
+                            return l === r;
+                        },
+                        '!=': function(l, r) {
+                            return l != r;
+                        },
+                        '!==': function(l, r) {
+                            return l !== r;
+                        },
+                        '<': function(l, r) {
+                            return l < r;
+                        },
+                        '>': function(l, r) {
+                            return l > r;
+                        },
+                        '<=': function(l, r) {
+                            return l <= r;
+                        },
+                        '>=': function(l, r) {
+                            return l >= r;
+                        },
+                        'typeof': function(l, r) {
+                            return typeof l == r;
+                        },
+                    };
+
+                    if (!operators[operator]) {
+                        throw new Error(
+                            'Handlebars Helper \'compare\' doesn\'t know the operator ' +
+                            operator);
+                    }
+
+                    var result = operators[operator](lvalue, rvalue);
+
+                    if (result) {
+                        return options.fn(this);
+                    } else {
+                        return options.inverse(this);
+                    }
+
+                }
+            );
         },
     });
 }
@@ -114,7 +179,7 @@ function showPopup(content, selectedWord) {
         html: true,
         placement: 'bottom',
         trigger: 'manual',
-        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>',
+        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div></div>',
     });
     $el.on('shown.bs.popover', function() {
         $(document).one('keyup', function(event) {
@@ -182,7 +247,8 @@ function onDoubleClick() {
 function loadPopupContentCallback(response, msg) {
     if (response.err) {
         showPopup(
-            '<div class="text-danger">' + response.err + '</div>',
+            '<div class="popover-body"><div class="text-danger">' +
+            response.err + '</div></div>',
             msg.word,
         );
         return;
@@ -196,8 +262,9 @@ function loadPopupContentCallback(response, msg) {
 
 function loadDeclensionTableCallback(response) {
     if (response.err) {
-        $('.morpher-popup .popover-body').append(
-            '<div class="text-danger">' + response.err + '</div>'
+        $('.morpher-popup.popover').append(
+            '<div class="popover-body"><div class="text-danger">' +
+            response.err + '</div></div>'
         );
         return;
     }
@@ -206,13 +273,15 @@ function loadDeclensionTableCallback(response) {
 
     if (response.content.length > 0) {
         var data = repackResponseData(response);
-        var mainVariant = data.variants[0];
 
-        var tpl = loadTemplate(mainVariant.type.toLowerCase());
+        var tpl = loadTemplate();
         var compiled = Handlebars.compile(tpl);
 
-        $('.morpher-popup .popover-body').append(compiled(data));
-        highlightLemma(mainVariant.lemma.replace(/\u0301/mg, ''));
+        $('.morpher-popup.popover').append(compiled(data));
+
+        if (response.word) {
+            highlightLemma(response.word.replace(/\u0301/mg, ''));
+        }
     }
 }
 
@@ -223,17 +292,11 @@ function repackResponseData(response) {
 
     for (var i = 0; i < response.content.length; i++) {
         var element = response.content[i];
-        data.variants.push({
-            lemma: element.value.singular.nominative[0],
-            type: element.type,
-            gender: element.value.gender,
-            isAnimate: element.value.isAnimate,
-            isProper: element.value.isProper,
-            locative2: element.value.locative2,
-            patronymics: element.value.patronymics,
-            plural: element.value.plural,
-            singular: element.value.singular,
-        });
+
+        var variant = element.value;
+        variant.type = element.type;
+
+        data.variants.push(variant);
     }
 
     return data;
@@ -243,18 +306,20 @@ function highlightLemma(lemma) {
     $('.morpher-popup .table__body .cell__value').
         each(function(index, element) {
             var $el = $(element);
-            console.log($el.text() + ' ? ' + lemma);
+
+            App.config.debug && console.log($el.text() + ' ? ' + lemma);
+
             if ($el.text() === lemma) {
                 $el.addClass('cell__value_highlighted');
             }
         });
 }
 
-function loadTemplate(name) {
+function loadTemplate() {
     return $.ajax({
         type: 'GET',
         url: chrome.extension.getURL(
-            '/html/tables/' + name + '.hbs'
+            '/html/tables.hbs'
         ),
         async: false,
     }).responseText;

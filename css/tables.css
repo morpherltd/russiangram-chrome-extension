@@ -68,23 +68,23 @@
     flex-direction: column;
     min-width: 0;
     word-wrap: break-word;
-    background-color: #fff;
+    background-color: #ffffff;
     background-clip: border-box;
-    border: 1px solid rgba(0,0,0,.125);
+    border: 1px solid rgba(0, 0, 0, .125);
     border-radius: 0.25rem;
 }
 
-.morpher-popup .accordion>.accordion-item {
+.morpher-popup .accordion > .accordion-item {
     overflow: hidden;
 }
 
-.morpher-popup .accordion>.accordion-item:not(:last-of-type) {
+.morpher-popup .accordion > .accordion-item:not(:last-of-type) {
     border-bottom: 0;
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
 }
 
-.morpher-popup .accordion>.accordion-item:not(:first-of-type) {
+.morpher-popup .accordion > .accordion-item:not(:first-of-type) {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
@@ -103,15 +103,15 @@
 .morpher-popup .accordion-header {
     padding: 0.5ex 0.5ex;
     margin-bottom: 0;
-    background-color: rgba(0,0,0,.03);
-    border-bottom: 1px solid rgba(0,0,0,.125);
+    background-color: rgba(0, 0, 0, .03);
+    border-bottom: 1px solid rgba(0, 0, 0, .125);
 }
 
 .morpher-popup .accordion-header:first-child {
     border-radius: calc(0.25rem - 1px) calc(0.25rem - 1px) 0 0;
 }
 
-.morpher-popup .accordion>.accordion-item>.accordion-header {
+.morpher-popup .accordion > .accordion-item > .accordion-header {
     border-radius: 0;
     margin-bottom: -1px;
 }
@@ -124,4 +124,9 @@
 
 .morpher-popup .accordion-button:hover {
     text-decoration: underline;
+}
+
+.morpher-popup .popover-header:last-child {
+    border-bottom-left-radius: calc(0.3rem - 1px);
+    border-bottom-right-radius: calc(0.3rem - 1px);
 }
