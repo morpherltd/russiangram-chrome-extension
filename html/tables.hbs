@@ -505,6 +505,15 @@
     </table>
 {{/inline}}
 
+{{#*inline "type-uninflected"}}
+    <p>
+        <span class="lemma">{{{chain 'stressed' 'first' form}}}</span>
+        {{#each partsOfSpeech}}
+             {{{lower this}}}{{#unless @last}};{{/unless}}
+        {{/each}}
+    </p>
+{{/inline}}
+
 {{#if variants }}
     <div class="popover-body">
         <div class="accordion" id="declensionTables">
@@ -520,6 +529,10 @@
 
                 {{#compare type '===' 'Adjective'}}
                     {{> type-adjective}}
+                {{/compare}}
+
+                {{#compare type '===' 'Uninflected'}}
+                    {{> type-uninflected}}
                 {{/compare}}
 
             {{/each}}
