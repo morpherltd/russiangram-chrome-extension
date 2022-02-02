@@ -280,7 +280,7 @@ function loadDeclensionTableCallback(response) {
         $('.morpher-popup.popover').append(compiled(data));
 
         if (response.word) {
-            highlightLemma(response.word.replace(/\u0301/mg, ''));
+            highlightLemma(response.word);
         }
     }
 }
@@ -303,13 +303,16 @@ function repackResponseData(response) {
 }
 
 function highlightLemma(lemma) {
+    lemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+
     $('.morpher-popup .table__body .cell__value').
         each(function(index, element) {
             var $el = $(element);
+            var text = $el.text().replace(/ё/gi, 'е');
 
-            App.config.debug && console.log($el.text() + ' ? ' + lemma);
+            App.config.debug && console.log(text + ' ? ' + lemma);
 
-            if ($el.text() === lemma) {
+            if (text === lemma) {
                 $el.addClass('cell__value_highlighted');
             }
         });
