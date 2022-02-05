@@ -81,8 +81,8 @@ function injectJs() {
                 var arg;
 
                 for (index = 0, arg = args[index];
-                    index < argsLength;
-                    arg = args[++index]) {
+                     index < argsLength;
+                     arg = args[++index]) {
                     if (Handlebars.helpers[arg]) {
                         helpers.push(Handlebars.helpers[arg]);
                     } else {
@@ -184,11 +184,13 @@ function showPopup(content, selectedWord) {
     $el.on('shown.bs.popover', function() {
         $(document).one('keyup', function(event) {
             if (event.which === 27) {
+                App.debug && console.log('hide by \'Esc\'');
                 $el.popover('hide');
             }
         });
     });
     $el.on('hidden.bs.popover', function() {
+        App.debug && console.log('hidden.bs.popover');
         $(this).popover('dispose');
         $('#bs_script').remove();
     });
@@ -197,6 +199,7 @@ function showPopup(content, selectedWord) {
         var container = $('.morpher-popup.popover');
 
         if (!container.is(e.target) && container.has(e.target).length === 0) {
+            App.debug && console.log('hide by outer click');
             $el.popover('hide');
         }
     });
@@ -282,6 +285,8 @@ function loadDeclensionTableCallback(response) {
         if (response.word) {
             highlightLemma(response.word);
         }
+
+        initializeAdditionPopup();
     }
 }
 
@@ -326,6 +331,50 @@ function loadTemplate() {
         ),
         async: false,
     }).responseText;
+}
+
+function initializeAdditionPopup() {
+
+    var $el = $('#declensionTables');
+
+    var options = {
+        container: '.morpher-popup #declensionTables',
+        html: true,
+        content: 'Loading...',
+        trigger: 'manual',
+        offset: 150,
+        template: '<div class="popover morpher-popup" role="tooltip">' +
+            '<div class="arrow"></div>' +
+            '<div class="popover-header"></div>' +
+            '<div class="popover-body"></div></div>',
+        popperConfig: {
+            placement: 'right-end',
+        },
+    };
+
+    $el.popover(options);
+
+    $('[data-toggle="addition-popup"]').on('click', function(event) {
+        event.preventDefault();
+
+        console.log('click', $(this).attr('href'));
+        $el.popover('show');
+
+        var selector = $(this).attr('href');
+        var content = $(selector).prop('outerHTML');
+        $el.find('.popover-body').html(content);
+    });
+
+    $el.on('click', function(e) {
+        var $target = $(e.target);
+        var isChildOfToggle = $target.closest('[data-toggle="addition-popup"]').length > 0;
+
+        if ($target.attr('data-toggle') !== 'addition-popup'
+            && !isChildOfToggle
+        ) {
+            $el.popover('hide');
+        }
+    });
 }
 
 function loadPopupContent(msg, callBack) {

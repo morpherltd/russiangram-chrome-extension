@@ -1,5 +1,17 @@
-.morpher-popup.popover {
+.morpher-popup.popover,
+.morpher-popup .popover {
     max-width: none;
+    color: #333333;
+}
+
+.morpher-popup.popover:not(.show),
+.morpher-popup .popover:not(.show) {
+    display: none;
+    opacity: 0;
+}
+
+.morpher-popup .link {
+    color: #0052cc;
 }
 
 .morpher-popup .lemma {
@@ -14,6 +26,10 @@
 .morpher-popup .table {
     border-collapse: collapse;
     width: 100%;
+}
+
+.morpher-popup .table + .table {
+    margin-top: 2ex;
 }
 
 .morpher-popup .table__cell {
@@ -120,6 +136,7 @@
     border: none;
     background-color: transparent;
     cursor: pointer;
+    color: inherit;
 }
 
 .morpher-popup .accordion-button:hover {
@@ -129,4 +146,13 @@
 .morpher-popup .popover-header:last-child {
     border-bottom-left-radius: calc(0.3rem - 1px);
     border-bottom-right-radius: calc(0.3rem - 1px);
+}
+
+.morpher-popup .fade,
+.morpher-popup.fade {
+    transition: opacity .15s linear;
+}
+
+.morpher-popup [hidden] {
+    display: none;
 }
