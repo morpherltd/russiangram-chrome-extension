@@ -286,7 +286,7 @@ function loadDeclensionTableCallback(response) {
             highlightLemma(response.word);
         }
 
-        initializeAdditionPopup(response.word);
+        initializeAdditionPopup(response.word, data);
     }
 }
 
@@ -352,7 +352,7 @@ function loadTemplate() {
     }).responseText;
 }
 
-function initializeAdditionPopup(lemma) {
+function initializeAdditionPopup(lemma, data) {
 
     var $el = $('#declensionTables');
 
@@ -400,7 +400,7 @@ function initializeAdditionPopup(lemma) {
     });
 
     var $cell = findCellByText(lemma, $('.participle-tables'));
-    if ($cell) {
+    if ($cell && data.variants[0] !== undefined && data.variants[0].type === 'Verb') {
         var content = $cell.closest('.table').html()
 
         $el.popover('show');
