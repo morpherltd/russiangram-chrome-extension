@@ -286,7 +286,7 @@ function loadDeclensionTableCallback(response) {
             highlightLemma(response.word);
         }
 
-        initializeAdditionPopup();
+        initializeAdditionPopup(response.word);
     }
 }
 
@@ -323,6 +323,25 @@ function highlightLemma(lemma) {
         });
 }
 
+function findCellByText(text, $container) {
+    text = text.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+
+    var $cells = $container.find('.cell__value');
+
+    for (var i = 0; i < $cells.length; i++) {
+        var $cell = $($cells[i]);
+        var cellText = $cell.text().replace(/ё/gi, 'е');
+
+        App.config.debug && console.log(cellText + ' ? ' + text);
+
+        if (cellText === text) {
+            return $cell;
+        }
+    }
+
+    return null;
+}
+
 function loadTemplate() {
     return $.ajax({
         type: 'GET',
@@ -333,7 +352,7 @@ function loadTemplate() {
     }).responseText;
 }
 
-function initializeAdditionPopup() {
+function initializeAdditionPopup(lemma) {
 
     var $el = $('#declensionTables');
 
@@ -369,7 +388,8 @@ function initializeAdditionPopup() {
         var $target = $(e.target);
 
         var isToggle = $target.attr('data-toggle') === 'addition-popup';
-        var isChildOfToggle = $target.closest('[data-toggle="addition-popup"]').length > 0;
+        var isChildOfToggle = $target.closest(
+            '[data-toggle="addition-popup"]').length > 0;
 
         var isPopup = $target.hasClass('child-popover');
         var isChildOfPopup = $target.closest('.child-popover').length > 0;
@@ -378,6 +398,14 @@ function initializeAdditionPopup() {
             $el.popover('hide');
         }
     });
+
+    var $cell = findCellByText(lemma, $('.participle-tables'));
+    if ($cell) {
+        var content = $cell.closest('.table').html()
+
+        $el.popover('show');
+        $el.find('.popover-body').html(content);
+    }
 }
 
 function loadPopupContent(msg, callBack) {
