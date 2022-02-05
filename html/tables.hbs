@@ -744,14 +744,19 @@
                 active
             </th>
             <td class="table__cell cell_composed">
-                <a href="#var-{{@index}}-table-participle-active-non-past" class="link" data-toggle="addition-popup">
-                    {{{chain 'stressed' 'join' participles.active.nonPast.masculine.nominative}}}
-                </a>
+                {{#if participles.active.nonPast.masculine.nominative}}
+                    <a href="#var-{{@index}}-table-participle-active-non-past" class="link"
+                       data-toggle="addition-popup">
+                        {{{chain 'stressed' 'join' participles.active.nonPast.masculine.nominative}}}
+                    </a>
+                {{/if}}
             </td>
             <td class="table__cell cell_composed">
-                <a href="#var-{{@index}}-table-participle-active-past" class="link" data-toggle="addition-popup">
-                    {{{chain 'stressed' 'join' participles.active.past.masculine.nominative}}}
-                </a>
+                {{#if participles.active.past.masculine.nominative}}
+                    <a href="#var-{{@index}}-table-participle-active-past" class="link" data-toggle="addition-popup">
+                        {{{chain 'stressed' 'join' participles.active.past.masculine.nominative}}}
+                    </a>
+                {{/if}}
             </td>
         </tr>
 
@@ -760,14 +765,19 @@
                 passive
             </th>
             <td class="table__cell cell_composed">
-                <a href="#var-{{@index}}-table-participle-passive-non-past" class="link" data-toggle="addition-popup">
-                    {{{chain 'stressed' 'join' participles.passive.nonPast.masculine.nominative}}}
-                </a>
+                {{#if participles.passive.nonPast.masculine.nominative}}
+                    <a href="#var-{{@index}}-table-participle-passive-non-past" class="link"
+                       data-toggle="addition-popup">
+                        {{{chain 'stressed' 'join' participles.passive.nonPast.masculine.nominative}}}
+                    </a>
+                {{/if}}
             </td>
             <td class="table__cell cell_composed">
-                <a href="#var-{{@index}}-table-participle-passive-past" class="link" data-toggle="addition-popup">
-                    {{{chain 'stressed' 'join' participles.passive.past.masculine.nominative}}}
-                </a>
+                {{#if participles.passive.past.masculine.nominative}}
+                    <a href="#var-{{@index}}-table-participle-passive-past" class="link" data-toggle="addition-popup">
+                        {{{chain 'stressed' 'join' participles.passive.past.masculine.nominative}}}
+                    </a>
+                {{/if}}
             </td>
         </tr>
 
