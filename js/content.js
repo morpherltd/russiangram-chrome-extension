@@ -343,7 +343,7 @@ function initializeAdditionPopup() {
         content: 'Loading...',
         trigger: 'manual',
         offset: 150,
-        template: '<div class="popover morpher-popup" role="tooltip">' +
+        template: '<div class="popover child-popover" role="tooltip">' +
             '<div class="arrow"></div>' +
             '<div class="popover-header"></div>' +
             '<div class="popover-body"></div></div>',
@@ -367,11 +367,14 @@ function initializeAdditionPopup() {
 
     $el.on('click', function(e) {
         var $target = $(e.target);
+
+        var isToggle = $target.attr('data-toggle') === 'addition-popup';
         var isChildOfToggle = $target.closest('[data-toggle="addition-popup"]').length > 0;
 
-        if ($target.attr('data-toggle') !== 'addition-popup'
-            && !isChildOfToggle
-        ) {
+        var isPopup = $target.hasClass('child-popover');
+        var isChildOfPopup = $target.closest('.child-popover').length > 0;
+
+        if (!isToggle && !isChildOfToggle && !isPopup && !isChildOfPopup) {
             $el.popover('hide');
         }
     });
