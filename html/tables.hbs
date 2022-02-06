@@ -603,7 +603,9 @@
             <button class="accordion-button" type="button" data-toggle="collapse"
                     data-target="#declensionTable{{@index}}"
                     aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' infinitive}}}</span> {{lower type}}
+                <span class="lemma">{{{chain 'stressed' 'first' infinitive}}}</span>
+                {{lower type}}{{#if aspect}}, {{lower aspect}}{{/if}},
+                {{#if isTransitive}} transitive{{else}} intransitive{{/if}}
             </button>
         </div>
 
