@@ -404,7 +404,7 @@ function initializeAdditionPopup(lemma, data) {
         $cell && data.variants[0] !== undefined
         && data.variants[0].type === 'Verb'
     ) {
-        var content = $cell.closest('table').html();
+        var content = $cell.closest('table').prop('outerHTML');
 
         $el.popover('show');
         $el.find('.popover-body').html(content);
