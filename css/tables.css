@@ -23,38 +23,38 @@
     color: indianred;
 }
 
-.morpher-popup .table {
+.morpher-popup table {
     border-collapse: collapse;
     width: 100%;
 }
 
-.morpher-popup .table + .table {
+.morpher-popup table + table {
     margin-top: 2ex;
 }
 
-.morpher-popup .table__cell {
+.morpher-popup td, .morpher-popup th {
     border: 1px solid rgb(223, 192, 163);
     padding-left: 1ex;
     padding-right: 1ex;
     color: rgb(46, 46, 46);
 }
 
-.morpher-popup .table__cell_head {
+.morpher-popup th {
     text-align: left;
     border: 1px solid rgb(167, 129, 95);
     color: rgb(116, 80, 48);
     background-color: rgb(246, 226, 205);
 }
 
-.morpher-popup .table__body .table__cell_head {
+.morpher-popup tbody th {
     background-color: rgb(251, 245, 238);
 }
 
-.morpher-popup .cell_composed {
+.morpher-popup .composed {
     padding: 0;
 }
 
-.morpher-popup .cell__value {
+.morpher-popup .value {
     padding-left: 1ex;
     padding-right: 1ex;
     width: 100%;
@@ -64,11 +64,11 @@
     align-items: center;
 }
 
-.morpher-popup .cell__value_highlighted {
+.morpher-popup .value.highlighted {
     box-shadow: inset 0 0 0 2px rgb(98 204 98);
 }
 
-.morpher-popup .cell__value + .cell__value {
+.morpher-popup .value + .value {
     border-top: 1px solid rgb(223, 192, 163);
 }
 

@@ -65,8 +65,8 @@ function injectJs() {
             Handlebars.registerHelper('stressed', stressedString);
 
             Handlebars.registerHelper('join', function(array) {
-                return '<div class="cell__value">' +
-                    array.join('</div><div class="cell__value">') + '</div>';
+                return '<div class="value">' +
+                    array.join('</div><div class="value">') + '</div>';
             });
 
             Handlebars.registerHelper('first', function(array) {
@@ -81,8 +81,8 @@ function injectJs() {
                 var arg;
 
                 for (index = 0, arg = args[index];
-                     index < argsLength;
-                     arg = args[++index]) {
+                    index < argsLength;
+                    arg = args[++index]) {
                     if (Handlebars.helpers[arg]) {
                         helpers.push(Handlebars.helpers[arg]);
                     } else {
@@ -310,7 +310,7 @@ function repackResponseData(response) {
 function highlightLemma(lemma) {
     lemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
 
-    $('.morpher-popup .table__body .cell__value').
+    $('.morpher-popup tbody .value').
         each(function(index, element) {
             var $el = $(element);
             var text = $el.text().replace(/ё/gi, 'е');
@@ -318,7 +318,7 @@ function highlightLemma(lemma) {
             App.config.debug && console.log(text + ' ? ' + lemma);
 
             if (text === lemma) {
-                $el.addClass('cell__value_highlighted');
+                $el.addClass('highlighted');
             }
         });
 }
@@ -326,7 +326,7 @@ function highlightLemma(lemma) {
 function findCellByText(text, $container) {
     text = text.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
 
-    var $cells = $container.find('.cell__value');
+    var $cells = $container.find('.value');
 
     for (var i = 0; i < $cells.length; i++) {
         var $cell = $($cells[i]);
@@ -400,8 +400,11 @@ function initializeAdditionPopup(lemma, data) {
     });
 
     var $cell = findCellByText(lemma, $('.participle-tables'));
-    if ($cell && data.variants[0] !== undefined && data.variants[0].type === 'Verb') {
-        var content = $cell.closest('.table').html()
+    if (
+        $cell && data.variants[0] !== undefined
+        && data.variants[0].type === 'Verb'
+    ) {
+        var content = $cell.closest('table').html();
 
         $el.popover('show');
         $el.find('.popover-body').html(content);
