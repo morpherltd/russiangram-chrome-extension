@@ -169,7 +169,15 @@ function stressedString(str) {
     );
 }
 
-function showPopup(content, selectedWord) {
+function unstressedString(str) {
+    return str.replace(/(<span class="stressed">(.+)<\/span>)/mg, '$2\u0301');
+}
+
+function showPopup(content) {
+    if ('' === content.replace('<br/>', '').trim()) {
+        return false;
+    }
+
     var $el = $('.' + waitResponseClass);
     $el.parent().addClass('twbs');
 
@@ -205,12 +213,9 @@ function showPopup(content, selectedWord) {
     });
 }
 
-function onDoubleClick() {
-    var word = window.getSelection && window.getSelection().toString();
-    word = word.trim();
-    App.config.debug && console.log('word: ' + word);
+function handle(selectedText) {
 
-    if (word !== '') {
+    if (selectedText !== '') {
         var range = window.getSelection().getRangeAt(0);
         //injecting bootstrap on demand to avoid conflict with websites
         injectJs();
@@ -228,23 +233,37 @@ function onDoubleClick() {
         beforeText = beforeText.substr(-1 * App.config.parsePhrase.left,
             App.config.parsePhrase.left);
         var context = beforeText
-            + word + ' '
+            + selectedText + ' '
             + afterText.substr(0, App.config.parsePhrase.right);
         var index = beforeText.length;
 
         App.config.debug && console.log('context: ' + context);
         App.config.debug && console.log('index: ' + index);
 
-        var highlightDiv = $(
-            '<span class="' + waitResponseClass + '"></span>')[0];
-        range.surroundContents(highlightDiv);
+        var wrapper = '<span class="' + waitResponseClass + '"></span>';
+        var highlightDiv = $(wrapper)[0];
+
+        try {
+            range.surroundContents(highlightDiv);
+        } catch (exception) {
+            $(range.commonAncestorContainer).wrap(wrapper);
+        }
 
         loadPopupContent({
             context: context,
-            index: context.indexOf(word),
-            word: word,
+            index: context.indexOf(selectedText),
+            word: selectedText,
         }, loadPopupContentCallback);
     }
+}
+
+function getSelectedText() {
+    var selection = window.getSelection && window.getSelection().toString();
+    selection = selection.trim();
+
+    App.config.debug && console.log('Selected text: ' + selection);
+
+    return selection;
 }
 
 function loadPopupContentCallback(response, msg) {
@@ -455,11 +474,30 @@ function loadDeclensionTable(msg, callBack) {
 }
 
 $(document).on('ready', function() {
-    $('body').on('dblclick', function(e) {
+    var $body = $('body');
+
+    $body.on('dblclick', function(e) {
         if (e.altKey) {
-            onDoubleClick(e);
+            var selectedText = getSelectedText();
+            handle(selectedText);
         }
     });
+
+    $body.on('selectstart', function() {
+        $body.on('mouseup', onMouseUp);
+    });
+
+    function onMouseUp() {
+        var selectedText = getSelectedText();
+
+        if (selectedText.split(' ').length > App.config.maxPhraseLength) {
+            App.config.debug && console.log('Rejected! Too many words.');
+            return false;
+        }
+
+        handle(selectedText);
+        $body.off('mouseup', onMouseUp);
+    }
 });
 
 /* Add CSS files */
