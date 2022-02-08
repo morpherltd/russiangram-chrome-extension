@@ -1,4 +1,5 @@
 var waitResponseClass = chrome.runtime.id + '-wait-response';
+var processing = false;
 
 function injectCSS() {
     $.ajax({
@@ -178,6 +179,11 @@ function showPopup(content) {
         return false;
     }
 
+    if ($('.morpher-popup').length > 0) {
+        App.config.debug && console.log('Rejected. Popup already exists.')
+        return false;
+    }
+
     var $el = $('.' + waitResponseClass);
     $el.parent().addClass('twbs');
 
@@ -214,54 +220,53 @@ function showPopup(content) {
 }
 
 function handle(selectedText) {
-
-    if (selectedText !== '') {
-        var range = window.getSelection().getRangeAt(0);
-        //injecting bootstrap on demand to avoid conflict with websites
-        injectJs();
-        var beforeWordRange = document.createRange();
-        beforeWordRange.setStartBefore(document.body.firstChild);
-        beforeWordRange.setEnd(range.startContainer, range.startOffset);
-
-        var beforeText = beforeWordRange.toString();
-        var afterWordRange = document.createRange();
-        afterWordRange.setStart(range.startContainer, range.endOffset);
-        afterWordRange.setEndAfter(document.body.lastChild);
-
-        var afterText = afterWordRange.toString();
-
-        beforeText = beforeText.substr(-1 * App.config.parsePhrase.left,
-            App.config.parsePhrase.left);
-        var context = beforeText
-            + selectedText + ' '
-            + afterText.substr(0, App.config.parsePhrase.right);
-        var index = beforeText.length;
-
-        App.config.debug && console.log('context: ' + context);
-        App.config.debug && console.log('index: ' + index);
-
-        var wrapper = '<span class="' + waitResponseClass + '"></span>';
-        var highlightDiv = $(wrapper)[0];
-
-        try {
-            range.surroundContents(highlightDiv);
-        } catch (exception) {
-            $(range.commonAncestorContainer).wrap(wrapper);
-        }
-
-        loadPopupContent({
-            context: context,
-            index: context.indexOf(selectedText),
-            word: selectedText,
-        }, loadPopupContentCallback);
+    if (selectedText === '') {
+        return false;
     }
+
+    var range = window.getSelection().getRangeAt(0);
+    //injecting bootstrap on demand to avoid conflict with websites
+    injectJs();
+    var beforeWordRange = document.createRange();
+    beforeWordRange.setStartBefore(document.body.firstChild);
+    beforeWordRange.setEnd(range.startContainer, range.startOffset);
+
+    var beforeText = beforeWordRange.toString();
+    var afterWordRange = document.createRange();
+    afterWordRange.setStart(range.startContainer, range.endOffset);
+    afterWordRange.setEndAfter(document.body.lastChild);
+
+    var afterText = afterWordRange.toString();
+
+    beforeText = beforeText.substr(-1 * App.config.parsePhrase.left,
+        App.config.parsePhrase.left);
+    var context = beforeText
+        + selectedText + ' '
+        + afterText.substr(0, App.config.parsePhrase.right);
+    var index = beforeText.length;
+
+    App.config.debug && console.log('context: ' + context);
+    App.config.debug && console.log('index: ' + index);
+
+    var wrapper = '<span class="' + waitResponseClass + '"></span>';
+    var highlightDiv = $(wrapper)[0];
+
+    try {
+        range.surroundContents(highlightDiv);
+    } catch (exception) {
+        $(range.commonAncestorContainer).wrap(wrapper);
+    }
+
+    loadPopupContent({
+        context: context,
+        index: context.indexOf(selectedText),
+        word: selectedText,
+    }, loadPopupContentCallback);
 }
 
 function getSelectedText() {
     var selection = window.getSelection && window.getSelection().toString();
     selection = selection.trim();
-
-    App.config.debug && console.log('Selected text: ' + selection);
 
     return selection;
 }
@@ -299,6 +304,10 @@ function loadDeclensionTableCallback(response) {
         var tpl = loadTemplate();
         var compiled = Handlebars.compile(tpl);
 
+        if ($('.morpher-popup.popover #declensionTables').length > 0) {
+            App.config.debug && console.log('Rejected. Declension tables already exists.')
+            return false;
+        }
         $('.morpher-popup.popover').append(compiled(data));
 
         if (response.word) {
@@ -353,8 +362,6 @@ function findCellByText(text, $container) {
     for (var i = 0; i < $cells.length; i++) {
         var $cell = $($cells[i]);
         var cellText = $cell.text().replace(/ё/gi, 'е');
-
-        App.config.debug && console.log(cellText + ' ? ' + text);
 
         if (cellText === text) {
             return $cell;
@@ -478,29 +485,13 @@ function loadDeclensionTable(msg, callBack) {
 
 $(document).on('ready', function() {
     var $body = $('body');
-
     $body.on('dblclick', function(e) {
         if (e.altKey) {
             var selectedText = getSelectedText();
+            App.config.debug && console.log('Selected text: ' + selectedText);
             handle(selectedText);
         }
     });
-
-    $body.on('selectstart', function() {
-        $body.on('mouseup', onMouseUp);
-    });
-
-    function onMouseUp() {
-        var selectedText = getSelectedText();
-
-        if (selectedText.split(' ').length > App.config.maxPhraseLength) {
-            App.config.debug && console.log('Rejected! Too many words.');
-            return false;
-        }
-
-        handle(selectedText);
-        $body.off('mouseup', onMouseUp);
-    }
 });
 
 /* Add CSS files */
