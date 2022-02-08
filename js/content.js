@@ -1,149 +1,499 @@
-var waitResponseClass=chrome.runtime.id+'-wait-response'
+var waitResponseClass = chrome.runtime.id + '-wait-response';
+var processing = false;
 
 function injectCSS() {
     $.ajax({
         url: chrome.extension.getURL('css/twbs.min.css'),
-        success: function (data) {
-            var css = data.replace(/\.\.\/fonts/g, chrome.extension.getURL('fonts'))
-            var styleNode = document.createElement("style");
-            styleNode.type = "text/css";
+        success: function(data) {
+            var css = data.replace(/\.\.\/fonts/g,
+                chrome.extension.getURL('fonts'));
+            var styleNode = document.createElement('style');
+            styleNode.type = 'text/css';
             styleNode.textContent = css;
             document.head.appendChild(styleNode);
-        }
+        },
     });
     $.ajax({
         url: chrome.extension.getURL('css/font-awesome.min.css'),
-        success: function (data) {
-            var faCSS = data.replace(/\.\.\/fonts/g, chrome.extension.getURL('fonts'))
-            var styleNode = document.createElement("style");
-            styleNode.type = "text/css";
+        success: function(data) {
+            var faCSS = data.replace(/\.\.\/fonts/g,
+                chrome.extension.getURL('fonts'));
+            var styleNode = document.createElement('style');
+            styleNode.type = 'text/css';
             styleNode.textContent = faCSS;
             document.head.appendChild(styleNode);
-        }
+        },
+    });
+    $.ajax({
+        url: chrome.extension.getURL('css/tables.css'),
+        success: function(data) {
+            var faCSS = data.replace(/\.\.\/fonts/g,
+                chrome.extension.getURL('fonts'));
+            var styleNode = document.createElement('style');
+            styleNode.type = 'text/css';
+            styleNode.textContent = faCSS;
+            document.head.appendChild(styleNode);
+        },
     });
 }
-function injectJs(){
+
+function injectJs() {
     $.ajax({
         url: chrome.extension.getURL('js/bootstrap.min.js'),
-        success: function (data) {
-            let scriptTag=document.createElement("script")
-            scriptTag.innerHTML=data
-            scriptTag.id="bs_script"
+        success: function(data) {
+            var scriptTag = document.createElement('script');
+            scriptTag.innerHTML = data;
+            scriptTag.id = 'bs_script';
             document.body.appendChild(scriptTag);
+        },
+    });
+    $.ajax({
+        url: chrome.extension.getURL('js/handlebars.min.js'),
+        success: function(data) {
+            var scriptTag = document.createElement('script');
+            scriptTag.innerHTML = data;
+            scriptTag.id = 'hb_script';
+            document.body.appendChild(scriptTag);
+
+            Handlebars.registerHelper('upper', function(aString) {
+                return aString.toUpperCase();
+            });
+
+            Handlebars.registerHelper('lower', function(aString) {
+                return aString.toLowerCase();
+            });
+
+            Handlebars.registerHelper('stressed', stressedString);
+
+            Handlebars.registerHelper('join', function(array) {
+                return '<div class="value">' +
+                    array.join('</div><div class="value">') + '</div>';
+            });
+
+            Handlebars.registerHelper('first', function(array) {
+                return array[0];
+            });
+
+            Handlebars.registerHelper('chain', function() {
+                var helpers = [];
+                var args = Array.prototype.slice.call(arguments);
+                var argsLength = args.length;
+                var index;
+                var arg;
+
+                for (index = 0, arg = args[index];
+                    index < argsLength;
+                    arg = args[++index]) {
+                    if (Handlebars.helpers[arg]) {
+                        helpers.push(Handlebars.helpers[arg]);
+                    } else {
+                        args = args.slice(index);
+                        break;
+                    }
+                }
+
+                while (helpers.length) {
+                    args = [helpers.pop().apply(Handlebars.helpers, args)];
+                }
+
+                return args.shift();
+            });
+
+            Handlebars.registerHelper('compare',
+                function(lvalue, operator, rvalue, options) {
+
+                    if (arguments.length < 3) {
+                        throw new Error(
+                            'Handlebars Helper \'compare\' needs 2 parameters');
+                    }
+
+                    if (options === undefined) {
+                        options = rvalue;
+                        rvalue = operator;
+                        operator = '===';
+                    }
+
+                    var operators = {
+                        '==': function(l, r) {
+                            return l == r;
+                        },
+                        '===': function(l, r) {
+                            return l === r;
+                        },
+                        '!=': function(l, r) {
+                            return l != r;
+                        },
+                        '!==': function(l, r) {
+                            return l !== r;
+                        },
+                        '<': function(l, r) {
+                            return l < r;
+                        },
+                        '>': function(l, r) {
+                            return l > r;
+                        },
+                        '<=': function(l, r) {
+                            return l <= r;
+                        },
+                        '>=': function(l, r) {
+                            return l >= r;
+                        },
+                        'typeof': function(l, r) {
+                            return typeof l == r;
+                        },
+                    };
+
+                    if (!operators[operator]) {
+                        throw new Error(
+                            'Handlebars Helper \'compare\' doesn\'t know the operator ' +
+                            operator);
+                    }
+
+                    var result = operators[operator](lvalue, rvalue);
+
+                    if (result) {
+                        return options.fn(this);
+                    } else {
+                        return options.inverse(this);
+                    }
+
+                }
+            );
+        },
+    });
+}
+
+function stressedString(str) {
+    return str.replace(
+        /((.)(\u0301))/mg,
+        '<span class="stressed">$2</span>'
+    );
+}
+
+function unstressedString(str) {
+    return str.replace(/(<span class="stressed">(.+)<\/span>)/mg, '$2\u0301');
+}
+
+function showPopup(content) {
+    if ('' === content.replace('<br/>', '').trim()) {
+        return false;
+    }
+
+    if ($('.morpher-popup').length > 0) {
+        App.config.debug && console.log('Rejected. Popup already exists.')
+        return false;
+    }
+
+    var $el = $('.' + waitResponseClass);
+    $el.parent().addClass('twbs');
+
+    $el.popover({
+        title: stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
+        container: 'body',
+        html: true,
+        placement: 'bottom',
+        trigger: 'manual',
+        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div></div>',
+    });
+    $el.on('shown.bs.popover', function() {
+        $(document).one('keyup', function(event) {
+            if (event.which === 27) {
+                App.debug && console.log('hide by \'Esc\'');
+                $el.popover('hide');
+            }
+        });
+    });
+    $el.on('hidden.bs.popover', function() {
+        App.debug && console.log('hidden.bs.popover');
+        $(this).popover('dispose');
+        $('#bs_script').remove();
+        $('#hb_script').remove();
+    });
+
+    $(document).on('click', function(e) {
+        var container = $('.morpher-popup.popover');
+
+        if (!container.is(e.target) && container.has(e.target).length === 0) {
+            App.debug && console.log('hide by outer click');
+            $el.popover('hide');
         }
     });
 }
 
-function getPopupInfo(word, context, getPopupInfoCallback) {
-    var msg = {
-        context: context,
-        index: context.indexOf(word)
+function handle(selectedText) {
+    if (selectedText === '') {
+        return false;
     }
 
-    loadPopupContent(msg, getPopupInfoCallback);
-}
+    var range = window.getSelection().getRangeAt(0);
+    //injecting bootstrap on demand to avoid conflict with websites
+    injectJs();
+    var beforeWordRange = document.createRange();
+    beforeWordRange.setStartBefore(document.body.firstChild);
+    beforeWordRange.setEnd(range.startContainer, range.startOffset);
 
-function showPopup(content,selectedword) {
-    var $el = $('.'+waitResponseClass)
-    $el.parent().addClass('twbs')
-    
-    $el.popover({
-        content: content,
-        title: selectedword,
-        container:"body",
-        html:true,
-        placement: 'bottom',
-        trigger: 'manual',
-        template:'<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>'
-    })
-    $el.on('shown.bs.popover', function () {
-        $(document).one('click', function (event) {
-            $el.popover('hide')
-        })
-        $(document).one('keyup', function (event) {
-            if(event.which===27) {
-                $el.popover('hide')
-            }
-        })
-    })
-    $el.on('hidden.bs.popover', function () {
-        $(this).popover('dispose')
-        $("#bs_script").remove()
-    })
+    var beforeText = beforeWordRange.toString();
+    var afterWordRange = document.createRange();
+    afterWordRange.setStart(range.startContainer, range.endOffset);
+    afterWordRange.setEndAfter(document.body.lastChild);
 
-    $el.popover('show')
+    var afterText = afterWordRange.toString();
 
-    $('.'+waitResponseClass).removeClass(waitResponseClass)
-}
+    beforeText = beforeText.substr(-1 * App.config.parsePhrase.left,
+        App.config.parsePhrase.left);
+    var context = beforeText
+        + selectedText + ' '
+        + afterText.substr(0, App.config.parsePhrase.right);
+    var index = beforeText.length;
 
-function onDoubleClick(e) {
-    var word = window.getSelection && window.getSelection().toString()
-    word = word.trim()
-    App.config.debug && console.log('word: ' + word)
+    App.config.debug && console.log('context: ' + context);
+    App.config.debug && console.log('index: ' + index);
 
-    if (word !== '') {
-        var range = window.getSelection().getRangeAt(0)
-        //injecting bootstrap on demand to avoid conflict with websites
-        injectJs()
-        var beforeWordRange = document.createRange()
-        beforeWordRange.setStartBefore(document.body.firstChild)
-        beforeWordRange.setEnd(range.startContainer, range.startOffset)
+    var wrapper = '<span class="' + waitResponseClass + '"></span>';
+    var highlightDiv = $(wrapper)[0];
 
-        var beforeText = beforeWordRange.toString()
-        var afterWordRange = document.createRange()
-        afterWordRange.setStart(range.startContainer, range.endOffset)
-        afterWordRange.setEndAfter(document.body.lastChild);
-
-        var afterText = afterWordRange.toString()
-
-        beforeText = beforeText.substr(-1 * App.config.parsePhrase.left, App.config.parsePhrase.left)
-        var context = beforeText
-            + word + ' '
-            + afterText.substr(0, App.config.parsePhrase.right)
-        var index = beforeText.length
-
-        App.config.debug && console.log('context: ' + context)
-        App.config.debug && console.log('index: ' + index)
-
-        var highlightDiv = $('<span class="'+waitResponseClass+'"></span>')[0];
+    try {
         range.surroundContents(highlightDiv);
+    } catch (exception) {
+        $(range.commonAncestorContainer).wrap(wrapper);
+    }
 
-        getPopupInfo(word, context, function (response) {
+    loadPopupContent({
+        context: context,
+        index: context.indexOf(selectedText),
+        word: selectedText,
+    }, loadPopupContentCallback);
+}
 
-            if (response.err) {
-                showPopup('<div class="text-danger">'+response.err+'</div>',word)
-                return
-            }
-            showPopup(response.content,word)
-        })
+function getSelectedText() {
+    var selection = window.getSelection && window.getSelection().toString();
+    selection = selection.trim();
+
+    return selection;
+}
+
+function loadPopupContentCallback(response, msg) {
+    if (response.err) {
+        showPopup(
+            '<div class="popover-body"><div class="text-danger">' +
+            response.err + '</div></div>',
+            msg.word,
+        );
+        return;
+    }
+    showPopup(response.content, msg.word);
+
+    msg.lemma = response.content.split('<br/>')[0];
+
+    loadDeclensionTable(msg, loadDeclensionTableCallback);
+}
+
+function loadDeclensionTableCallback(response) {
+    if (response.err) {
+        $('.morpher-popup.popover').append(
+            '<div class="popover-body"><div class="text-danger">' +
+            response.err + '</div></div>'
+        );
+        return;
+    }
+
+    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+
+    if (response.content.length > 0) {
+        var data = repackResponseData(response);
+
+        var tpl = loadTemplate();
+        var compiled = Handlebars.compile(tpl);
+
+        if ($('.morpher-popup.popover #declensionTables').length > 0) {
+            App.config.debug && console.log('Rejected. Declension tables already exists.')
+            return false;
+        }
+        $('.morpher-popup.popover').append(compiled(data));
+
+        if (response.word) {
+            highlightLemma(response.word);
+        }
+
+        initializeAdditionPopup(response.word, data);
     }
 }
 
-function loadPopupContent(msg, responseCallback) {
+function repackResponseData(response) {
+    var data = {
+        variants: [],
+    };
+
+    for (var i = 0; i < response.content.length; i++) {
+        var element = response.content[i];
+
+        var variant = element.value;
+        variant.type = element.type;
+
+        data.variants.push(variant);
+    }
+
+    return data;
+}
+
+function highlightLemma(lemma) {
+    var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+
+    $('.morpher-popup tbody .value').
+        each(function(index, element) {
+            var $el = $(element);
+            var text = $el.text();
+            var cleanText = text.replace(/ё/gi, 'е');
+
+            if (cleanText === cleanLemma) {
+                if (lemma.match(/ё/gi) && !text.match(/ё/gi)) {
+                    return false;
+                }
+
+                $el.addClass('highlighted');
+            }
+        });
+}
+
+function findCellByText(text, $container) {
+    text = text.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+
+    var $cells = $container.find('.value');
+
+    for (var i = 0; i < $cells.length; i++) {
+        var $cell = $($cells[i]);
+        var cellText = $cell.text().replace(/ё/gi, 'е');
+
+        if (cellText === text) {
+            return $cell;
+        }
+    }
+
+    return null;
+}
+
+function loadTemplate() {
+    return $.ajax({
+        type: 'GET',
+        url: chrome.extension.getURL(
+            '/html/tables.hbs'
+        ),
+        async: false,
+    }).responseText;
+}
+
+function initializeAdditionPopup(lemma, data) {
+
+    var $el = $('#declensionTables');
+
+    var options = {
+        container: '.morpher-popup #declensionTables',
+        html: true,
+        content: 'Loading...',
+        trigger: 'manual',
+        offset: 150,
+        template: '<div class="popover child-popover" role="tooltip">' +
+            '<div class="arrow"></div>' +
+            '<div class="popover-header"></div>' +
+            '<div class="popover-body"></div></div>',
+        popperConfig: {
+            placement: 'right-end',
+        },
+    };
+
+    $el.popover(options);
+
+    $('[data-toggle="addition-popup"]').on('click', function(event) {
+        event.preventDefault();
+
+        console.log('click', $(this).attr('href'));
+        $el.popover('show');
+
+        var selector = $(this).attr('href');
+        var content = $(selector).prop('outerHTML');
+        $el.find('.popover-body').html(content);
+    });
+
+    $el.on('click', function(e) {
+        var $target = $(e.target);
+
+        var isToggle = $target.attr('data-toggle') === 'addition-popup';
+        var isChildOfToggle = $target.closest(
+            '[data-toggle="addition-popup"]').length > 0;
+
+        var isPopup = $target.hasClass('child-popover');
+        var isChildOfPopup = $target.closest('.child-popover').length > 0;
+
+        if (!isToggle && !isChildOfToggle && !isPopup && !isChildOfPopup) {
+            $el.popover('hide');
+        }
+    });
+
+    var $cell = findCellByText(lemma, $('.participle-tables'));
+    if (
+        $cell && data.variants[0] !== undefined
+        && data.variants[0].type === 'Verb'
+    ) {
+        var content = $cell.closest('table').prop('outerHTML');
+
+        $el.popover('show');
+        $el.find('.popover-body').html(content);
+    }
+}
+
+function loadPopupContent(msg, callBack) {
     $.ajax({
         url: App.config.getPopupInfo.url,
         data: {
             context: msg.context,
-            index: msg.index
+            index: msg.index,
         },
         method: 'POST',
         timeout: App.config.getPopupInfo.timeout,
-        success: function (data) {
-            responseCallback({content: data})
+        success: function(data) {
+            callBack({content: data}, msg);
         },
-        error: function () {
-            responseCallback({err: 'Could not reach russiangram.com'})
-        }
-    })
+        error: function() {
+            callBack({
+                err: 'Could not reach russiangram.com',
+            });
+        },
+    });
 }
 
-$(document).ready(function () {
-    $('body').dblclick(function (e) {
+function loadDeclensionTable(msg, callBack) {
+    $.ajax({
+        url: App.config.declensionTable.url,
+        data: {
+            word: msg.word,
+        },
+        method: 'GET',
+        timeout: App.config.getPopupInfo.timeout,
+        success: function(data) {
+            callBack({
+                content: data,
+                word: msg.word,
+                lemma: msg.lemma,
+            });
+        },
+        error: function() {
+            callBack({
+                err: 'Could not reach morpher.ru',
+            });
+        },
+    });
+}
+
+$(document).on('ready', function() {
+    var $body = $('body');
+    $body.on('dblclick', function(e) {
         if (e.altKey) {
-            onDoubleClick(e);
+            var selectedText = getSelectedText();
+            App.config.debug && console.log('Selected text: ' + selectedText);
+            handle(selectedText);
         }
-    })
-})
+    });
+});
 
 /* Add CSS files */
-injectCSS()
+injectCSS();
