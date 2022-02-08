@@ -207,6 +207,7 @@ function showPopup(content) {
         App.debug && console.log('hidden.bs.popover');
         $(this).popover('dispose');
         $('#bs_script').remove();
+        $('#hb_script').remove();
     });
 
     $(document).on('click', function(e) {
