@@ -327,16 +327,19 @@ function repackResponseData(response) {
 }
 
 function highlightLemma(lemma) {
-    lemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+    var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
 
     $('.morpher-popup tbody .value').
         each(function(index, element) {
             var $el = $(element);
-            var text = $el.text().replace(/ё/gi, 'е');
+            var text = $el.text();
+            var cleanText = text.replace(/ё/gi, 'е');
 
-            App.config.debug && console.log(text + ' ? ' + lemma);
+            if (cleanText === cleanLemma) {
+                if (lemma.match(/ё/gi) && !text.match(/ё/gi)) {
+                    return false;
+                }
 
-            if (text === lemma) {
                 $el.addClass('highlighted');
             }
         });
