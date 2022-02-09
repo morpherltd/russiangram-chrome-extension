@@ -500,17 +500,22 @@ function loadDeclensionTable(msg, callBack) {
 $(document).on('ready', function() {
     var $body = $('body');
     $body.on('selectstart', function() {
+        $body.off('mouseup', onMouseUp);
         $body.on('mouseup', onMouseUp);
     });
 
     $body.on('select', onMouseUp);
 
-    function onMouseUp() {
+    function onMouseUp(e) {
+        if (!e.altKey) {
+            return;
+        }
+
         var selectedText = getSelectedText();
 
         if (selectedText.split(' ').length > App.config.maxPhraseLength) {
             App.config.debug && console.log('Rejected! Too many words.');
-            return false;
+            return;
         }
 
         handle(selectedText);
