@@ -37,12 +37,18 @@ function injectCSS() {
 }
 
 function injectJs() {
+    if ($('.morpher-script').length > 0) {
+        App.config.debug && console.log('Scripts are already injected.');
+        return false;
+    }
+
     $.ajax({
         url: chrome.extension.getURL('js/bootstrap.min.js'),
         success: function(data) {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'bs_script';
+            scriptTag.classList.add('morpher-script');
             document.body.appendChild(scriptTag);
         },
     });
@@ -52,6 +58,7 @@ function injectJs() {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'hb_script';
+            scriptTag.classList.add('morpher-script');
             document.body.appendChild(scriptTag);
 
             Handlebars.registerHelper('upper', function(aString) {
@@ -162,6 +169,11 @@ function injectJs() {
     });
 }
 
+function deleteJs() {
+    $('#bs_script').remove();
+    $('#hb_script').remove();
+}
+
 function stressedString(str) {
     return str.replace(
         /((.)(\u0301))/mg,
@@ -175,7 +187,7 @@ function showPopup(content) {
     }
 
     if ($('.morpher-popup').length > 0) {
-        App.config.debug && console.log('Rejected. Popup already exists.')
+        App.config.debug && console.log('Rejected. Popup already exists.');
         return false;
     }
 
@@ -201,8 +213,7 @@ function showPopup(content) {
     $el.on('hidden.bs.popover', function() {
         App.debug && console.log('hidden.bs.popover');
         $(this).popover('dispose');
-        $('#bs_script').remove();
-        $('#hb_script').remove();
+        deleteJs();
     });
 
     $(document).on('mousedown', function(e) {
@@ -232,7 +243,9 @@ function handle(selectedText) {
     var afterWordRange = document.createRange();
     afterWordRange.setStart(
         range.startContainer,
-        range.endOffset > range.startContainer.length ? range.startContainer.length : range.endOffset
+        range.endOffset > range.startContainer.length
+            ? range.startContainer.length
+            : range.endOffset
     );
     afterWordRange.setEndAfter(document.body.lastChild);
 
@@ -305,7 +318,8 @@ function loadDeclensionTableCallback(response) {
         var compiled = Handlebars.compile(tpl);
 
         if ($('.morpher-popup.popover #declensionTables').length > 0) {
-            App.config.debug && console.log('Rejected. Declension tables already exists.')
+            App.config.debug &&
+            console.log('Rejected. Declension tables already exists.');
             return false;
         }
         $('.morpher-popup.popover').append(compiled(data));
