@@ -499,6 +499,22 @@ function loadDeclensionTable(msg, callBack) {
 
 $(document).on('ready', function() {
     var $body = $('body');
+    var altKey = false;
+
+    $body.on('keydown', function(e) {
+        if (e.keyCode === 18) {
+            App.config.debug && console.log('Pressed Alt.');
+            altKey = true;
+        }
+    });
+
+    $body.on('keyup', function(e) {
+        if (e.keyCode === 18) {
+            App.config.debug && console.log('Not pressed Alt.');
+            altKey = false;
+        }
+    });
+
     $body.on('selectstart', function() {
         $body.off('mouseup', onMouseUp);
         $body.on('mouseup', onMouseUp);
@@ -507,19 +523,17 @@ $(document).on('ready', function() {
     $body.on('select', onMouseUp);
 
     function onMouseUp(e) {
-        if (!e.altKey) {
-            return;
+        if (e.altKey || altKey) {
+            var selectedText = getSelectedText();
+
+            if (selectedText.split(' ').length > App.config.maxPhraseLength) {
+                App.config.debug && console.log('Rejected! Too many words.');
+                return;
+            }
+
+            handle(selectedText);
+            $body.off('mouseup', onMouseUp);
         }
-
-        var selectedText = getSelectedText();
-
-        if (selectedText.split(' ').length > App.config.maxPhraseLength) {
-            App.config.debug && console.log('Rejected! Too many words.');
-            return;
-        }
-
-        handle(selectedText);
-        $body.off('mouseup', onMouseUp);
     }
 });
 
