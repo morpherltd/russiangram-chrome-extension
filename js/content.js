@@ -1,5 +1,4 @@
 var waitResponseClass = chrome.runtime.id + '-wait-response';
-var processing = false;
 
 function injectCSS() {
     $.ajax({
@@ -170,10 +169,6 @@ function stressedString(str) {
     );
 }
 
-function unstressedString(str) {
-    return str.replace(/(<span class="stressed">(.+)<\/span>)/mg, '$2\u0301');
-}
-
 function showPopup(content) {
     if ('' === content.replace('<br/>', '').trim()) {
         return false;
@@ -210,11 +205,12 @@ function showPopup(content) {
         $('#hb_script').remove();
     });
 
-    $(document).on('click', function(e) {
+    $(document).on('mousedown', function(e) {
         var container = $('.morpher-popup.popover');
 
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             App.debug && console.log('hide by outer click');
+            $el.parent().removeClass('twbs');
             $el.popover('hide');
         }
     });
@@ -234,7 +230,10 @@ function handle(selectedText) {
 
     var beforeText = beforeWordRange.toString();
     var afterWordRange = document.createRange();
-    afterWordRange.setStart(range.startContainer, range.endOffset);
+    afterWordRange.setStart(
+        range.startContainer,
+        range.endOffset > range.startContainer.length ? range.startContainer.length : range.endOffset
+    );
     afterWordRange.setEndAfter(document.body.lastChild);
 
     var afterText = afterWordRange.toString();
@@ -255,7 +254,7 @@ function handle(selectedText) {
     try {
         range.surroundContents(highlightDiv);
     } catch (exception) {
-        $(range.commonAncestorContainer).wrap(wrapper);
+        $(range.endContainer).before(wrapper);
     }
 
     loadPopupContent({
@@ -486,13 +485,23 @@ function loadDeclensionTable(msg, callBack) {
 
 $(document).on('ready', function() {
     var $body = $('body');
-    $body.on('dblclick', function(e) {
-        if (e.altKey) {
-            var selectedText = getSelectedText();
-            App.config.debug && console.log('Selected text: ' + selectedText);
-            handle(selectedText);
-        }
+    $body.on('selectstart', function() {
+        $body.on('mouseup', onMouseUp);
     });
+
+    $body.on('select', onMouseUp);
+
+    function onMouseUp() {
+        var selectedText = getSelectedText();
+
+        if (selectedText.split(' ').length > App.config.maxPhraseLength) {
+            App.config.debug && console.log('Rejected! Too many words.');
+            return false;
+        }
+
+        handle(selectedText);
+        $body.off('mouseup', onMouseUp);
+    }
 });
 
 /* Add CSS files */

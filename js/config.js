@@ -13,5 +13,5 @@ App.config = {
         left: 100,
         right: 100,
     },
-    maxPhraseLength: 1,
+    maxPhraseLength: 5,
 };
