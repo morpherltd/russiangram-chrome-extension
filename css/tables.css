@@ -156,10 +156,6 @@
     color: inherit;
 }
 
-.morpher-popup .accordion-button:hover {
-    text-decoration: underline;
-}
-
 .morpher-popup .popover-header:last-child {
     border-bottom-left-radius: calc(0.3rem - 1px);
     border-bottom-right-radius: calc(0.3rem - 1px);
