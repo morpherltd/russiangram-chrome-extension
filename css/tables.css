@@ -140,13 +140,18 @@
 }
 
 .morpher-popup .accordion > .accordion-item > .accordion-header {
+    display: flex;
     border-radius: 0;
     margin-bottom: -1px;
 }
 
 .morpher-popup .accordion-button {
+    display: flex;
     border: none;
+    width: 100%;
+    height: 100%;
     background-color: transparent;
+    padding: 1px 6px;
     cursor: pointer;
     color: inherit;
 }
@@ -158,6 +163,10 @@
 .morpher-popup .popover-header:last-child {
     border-bottom-left-radius: calc(0.3rem - 1px);
     border-bottom-right-radius: calc(0.3rem - 1px);
+}
+
+.morpher-popup .text-info {
+    padding: 0.5ex 2ex;
 }
 
 .morpher-popup .fade,
