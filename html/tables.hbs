@@ -5,9 +5,14 @@
             <button class="accordion-button" type="button" data-toggle="collapse"
                     data-target="#declensionTable{{@index}}"
                     aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' singular.nominative}}}</span>
-                {{#if isProper}}proper{{/if}} {{lower type}}, {{lower gender}}, {{#if isAnimate}}
-                animate{{else}}inanimate{{/if}}
+                <span class="lemma">
+                    {{#if singular.nominative}}
+                        {{{chain 'stressed' 'first' singular.nominative}}}
+                    {{else}}
+                        {{{chain 'stressed' 'first' plural.nominative}}}
+                    {{/if}}
+                </span>
+                {{#if isProper}}proper{{/if}} {{lower type}}{{#if gender}}, {{lower gender}}{{/if}}, {{#if isAnimate}}animate{{else}}inanimate{{/if}}
             </button>
         </div>
 

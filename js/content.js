@@ -61,124 +61,123 @@ function injectJs() {
             scriptTag.classList.add('morpher-script');
             document.body.appendChild(scriptTag);
 
-            Handlebars.registerHelper('upper', function(aString) {
-                return aString.toUpperCase();
-            });
-
-            Handlebars.registerHelper('lower', function(aString) {
-                return aString.toLowerCase();
-            });
-
-            Handlebars.registerHelper('stressed', stressedString);
-
-            Handlebars.registerHelper('join', function(array) {
-                return '<div class="value">' +
-                    array.join('</div><div class="value">') + '</div>';
-            });
-
-            Handlebars.registerHelper('first', function(array) {
-                return array[0];
-            });
-
-            Handlebars.registerHelper('chain', function() {
-                var helpers = [];
-                var args = Array.prototype.slice.call(arguments);
-                var argsLength = args.length;
-                var index;
-                var arg;
-
-                for (index = 0, arg = args[index];
-                    index < argsLength;
-                    arg = args[++index]) {
-                    if (Handlebars.helpers[arg]) {
-                        helpers.push(Handlebars.helpers[arg]);
-                    } else {
-                        args = args.slice(index);
-                        break;
-                    }
-                }
-
-                while (helpers.length) {
-                    args = [helpers.pop().apply(Handlebars.helpers, args)];
-                }
-
-                return args.shift();
-            });
-
-            Handlebars.registerHelper('compare',
-                function(lvalue, operator, rvalue, options) {
-
-                    if (arguments.length < 3) {
-                        throw new Error(
-                            'Handlebars Helper \'compare\' needs 2 parameters');
-                    }
-
-                    if (options === undefined) {
-                        options = rvalue;
-                        rvalue = operator;
-                        operator = '===';
-                    }
-
-                    var operators = {
-                        '==': function(l, r) {
-                            return l == r;
-                        },
-                        '===': function(l, r) {
-                            return l === r;
-                        },
-                        '!=': function(l, r) {
-                            return l != r;
-                        },
-                        '!==': function(l, r) {
-                            return l !== r;
-                        },
-                        '<': function(l, r) {
-                            return l < r;
-                        },
-                        '>': function(l, r) {
-                            return l > r;
-                        },
-                        '<=': function(l, r) {
-                            return l <= r;
-                        },
-                        '>=': function(l, r) {
-                            return l >= r;
-                        },
-                        'typeof': function(l, r) {
-                            return typeof l == r;
-                        },
-                    };
-
-                    if (!operators[operator]) {
-                        throw new Error(
-                            'Handlebars Helper \'compare\' doesn\'t know the operator ' +
-                            operator);
-                    }
-
-                    var result = operators[operator](lvalue, rvalue);
-
-                    if (result) {
-                        return options.fn(this);
-                    } else {
-                        return options.inverse(this);
-                    }
-
-                }
-            );
+            Handlebars.registerHelper('upper', handlebarsHelper.upper);
+            Handlebars.registerHelper('lower', handlebarsHelper.lower);
+            Handlebars.registerHelper('stressed', handlebarsHelper.stressedString);
+            Handlebars.registerHelper('join', handlebarsHelper.join);
+            Handlebars.registerHelper('first', handlebarsHelper.first);
+            Handlebars.registerHelper('chain', handlebarsHelper.chain);
+            Handlebars.registerHelper('compare', handlebarsHelper.compare);
         },
     });
 }
 
+var handlebarsHelper = {
+    stressedString: function(str) {
+        return str.replace(
+            /((.)(\u0301))/mg,
+            '<span class="stressed">$2</span>'
+        );
+    },
+    compare: function(lvalue, operator, rvalue, options) {
+
+        if (arguments.length < 3) {
+            throw new Error(
+                'Handlebars Helper \'compare\' needs 2 parameters');
+        }
+
+        if (options === undefined) {
+            options = rvalue;
+            rvalue = operator;
+            operator = '===';
+        }
+
+        var operators = {
+            '==': function(l, r) {
+                return l == r;
+            },
+            '===': function(l, r) {
+                return l === r;
+            },
+            '!=': function(l, r) {
+                return l != r;
+            },
+            '!==': function(l, r) {
+                return l !== r;
+            },
+            '<': function(l, r) {
+                return l < r;
+            },
+            '>': function(l, r) {
+                return l > r;
+            },
+            '<=': function(l, r) {
+                return l <= r;
+            },
+            '>=': function(l, r) {
+                return l >= r;
+            },
+            'typeof': function(l, r) {
+                return typeof l == r;
+            },
+        };
+
+        if (!operators[operator]) {
+            throw new Error(
+                'Handlebars Helper \'compare\' doesn\'t know the operator ' +
+                operator);
+        }
+
+        var result = operators[operator](lvalue, rvalue);
+
+        if (result) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    },
+    chain: function() {
+        var helpers = [];
+        var args = Array.prototype.slice.call(arguments);
+        var argsLength = args.length;
+        var index;
+        var arg;
+
+        for (index = 0, arg = args[index];
+            index < argsLength;
+            arg = args[++index]) {
+            if (Handlebars.helpers[arg]) {
+                helpers.push(Handlebars.helpers[arg]);
+            } else {
+                args = args.slice(index);
+                break;
+            }
+        }
+
+        while (helpers.length) {
+            args = [helpers.pop().apply(Handlebars.helpers, args)];
+        }
+
+        return args.shift();
+    },
+    first: function(array) {
+        return array[0];
+    },
+    join: function(array) {
+        return '<div class="value">' +
+            array.join('</div><div class="value">') + '</div>';
+    },
+    lower: function(aString) {
+        return aString.toLowerCase();
+    },
+    upper: function upper(aString) {
+        return aString.toUpperCase();
+    },
+};
+
 function deleteJs() {
     $('#bs_script').remove();
     $('#hb_script').remove();
-}
-
-function stressedString(str) {
-    return str.replace(
-        /((.)(\u0301))/mg,
-        '<span class="stressed">$2</span>'
-    );
 }
 
 function showPopup(content) {
@@ -195,7 +194,7 @@ function showPopup(content) {
     $el.parent().addClass('twbs');
 
     $el.popover({
-        title: stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
+        title: handlebarsHelper.stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
         container: 'body',
         html: true,
         placement: 'bottom',
