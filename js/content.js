@@ -285,6 +285,8 @@ function getSelectedText() {
 
 function loadPopupContentCallback(response, msg) {
     if (response.err) {
+        $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+
         showPopup(
             '<div class="popover-body"><div class="text-danger">' +
             response.err + '</div></div>',
@@ -300,6 +302,8 @@ function loadPopupContentCallback(response, msg) {
 }
 
 function loadDeclensionTableCallback(response) {
+    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+
     if (response.err) {
         $('.morpher-popup.popover').append(
             '<div class="popover-body"><div class="text-danger">' +
@@ -307,8 +311,6 @@ function loadDeclensionTableCallback(response) {
         );
         return;
     }
-
-    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
 
     if (response.content.length > 0) {
         var data = repackResponseData(response);
@@ -523,6 +525,7 @@ $(document).on('ready', function() {
 
     function onMouseUp(e) {
         if (e.altKey || altKey) {
+            $body.off('mouseup', onMouseUp);
             var selectedText = getSelectedText();
 
             if (selectedText.split(' ').length > App.config.maxPhraseLength) {
@@ -531,7 +534,6 @@ $(document).on('ready', function() {
             }
 
             handle(selectedText);
-            $body.off('mouseup', onMouseUp);
         }
     }
 });
