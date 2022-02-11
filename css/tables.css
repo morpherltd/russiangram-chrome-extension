@@ -37,6 +37,7 @@
     padding-left: 1ex;
     padding-right: 1ex;
     color: rgb(46, 46, 46);
+    vertical-align: middle;
 
     /* See: https://stackoverflow.com/a/3542470/18106457 */
     height: 1px;
@@ -57,7 +58,7 @@
     padding: 0;
 }
 
-.value-group {
+.morpher-popup .value-group {
     display: flex;
     height: 100%;
     flex-direction: column;
