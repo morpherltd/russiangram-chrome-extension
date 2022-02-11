@@ -164,8 +164,8 @@ var handlebarsHelper = {
         return array[0];
     },
     join: function(array) {
-        return '<div class="value">' +
-            array.join('</div><div class="value">') + '</div>';
+        return '<div class="value-group"><div class="value">' +
+            array.join('</div><div class="value">') + '</div></div>';
     },
     lower: function(aString) {
         return aString.toLowerCase();
