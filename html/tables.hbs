@@ -1,10 +1,8 @@
 {{#*inline "type-noun"}}
-    <div class="accordion-item">
-
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
                 <span class="lemma">
                     {{#if singular.nominative}}
                         {{{chain 'stressed' 'first' singular.nominative}}}
@@ -12,17 +10,16 @@
                         {{{chain 'stressed' 'first' plural.nominative}}}
                     {{/if}}
                 </span>
-                {{#if isProper}}proper{{/if}} {{lower type}}{{#if gender}}, {{lower gender}}{{/if}}, {{#if isAnimate}}animate{{else}}inanimate{{/if}}
-            </button>
-        </div>
+            {{#if isProper}}proper{{/if}} {{lower type}}{{#if gender}}, {{lower gender}}{{/if}}, {{#if isAnimate}}
+            animate{{else}}inanimate{{/if}}
+        </button>
+    </div>
 
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> noun-table}}
-            </div>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> noun-table}}
         </div>
-
     </div>
 {{/inline}}
 
@@ -118,23 +115,19 @@
 {{/inline}}
 
 {{#*inline "type-surname"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' masculine.nominative}}}</span> {{lower type}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' masculine.nominative}}}</span> {{lower type}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> surname-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> surname-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -184,23 +177,19 @@
 {{/inline}}
 
 {{#*inline "type-adjective"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' full.masculine.nominative}}}</span> {{lower type}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' full.masculine.nominative}}}</span> {{lower type}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> adjective-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> adjective-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -260,32 +249,41 @@
 {{/inline}}
 
 {{#*inline "type-uninflected"}}
-    <p>
-        <span class="lemma">{{{chain 'stressed' 'first' form}}}</span>
-        {{#each partsOfSpeech}}
-            {{{lower this}}}{{#unless @last}};{{/unless}}
-        {{/each}}
-    </p>
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' form}}}</span>
+            {{#each partsOfSpeech}}
+                {{{lower this}}}{{#unless @last}};{{/unless}}
+            {{/each}}
+        </button>
+    </div>
+
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            <p class="text-info">
+                No additional information available
+            </p>
+        </div>
+    </div>
 {{/inline}}
 
 {{#*inline "type-numeral"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' cases.nominative}}}</span> {{lower type}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' cases.nominative}}}</span> {{lower type}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> numeral-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> numeral-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -323,25 +321,21 @@
 {{/inline}}
 
 {{#*inline "type-verb"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' infinitive}}}</span>
+            {{lower type}}{{#if aspect}}, {{lower aspect}}{{/if}},
+            {{#if isTransitive}} transitive{{else}} intransitive{{/if}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' infinitive}}}</span>
-                {{lower type}}{{#if aspect}}, {{lower aspect}}{{/if}},
-                {{#if isTransitive}} transitive{{else}} intransitive{{/if}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> verb-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> verb-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -571,31 +565,33 @@
         <div class="accordion" id="declensionTables">
 
             {{#each variants}}
+                <div class="accordion-item">
 
-                {{#compare type '===' 'Noun'}}
-                    {{> type-noun}}
-                {{/compare}}
+                    {{#compare type '===' 'Noun'}}
+                        {{> type-noun}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Surname'}}
-                    {{> type-surname}}
-                {{/compare}}
+                    {{#compare type '===' 'Surname'}}
+                        {{> type-surname}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Adjective'}}
-                    {{> type-adjective}}
-                {{/compare}}
+                    {{#compare type '===' 'Adjective'}}
+                        {{> type-adjective}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Uninflected'}}
-                    {{> type-uninflected}}
-                {{/compare}}
+                    {{#compare type '===' 'Uninflected'}}
+                        {{> type-uninflected}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Numeral'}}
-                    {{> type-numeral}}
-                {{/compare}}
+                    {{#compare type '===' 'Numeral'}}
+                        {{> type-numeral}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Verb'}}
-                    {{> type-verb}}
-                {{/compare}}
+                    {{#compare type '===' 'Verb'}}
+                        {{> type-verb}}
+                    {{/compare}}
 
+                </div>
             {{/each}}
 
         </div>
