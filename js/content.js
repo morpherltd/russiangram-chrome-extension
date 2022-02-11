@@ -349,13 +349,13 @@ function repackResponseData(response) {
 }
 
 function highlightLemma(lemma) {
-    var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+    var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е').toLowerCase();
 
     $('.morpher-popup tbody .value').
         each(function(index, element) {
             var $el = $(element);
             var text = $el.text();
-            var cleanText = text.replace(/ё/gi, 'е');
+            var cleanText = text.replace(/ё/gi, 'е').toLowerCase();
 
             if (cleanText === cleanLemma) {
                 if (lemma.match(/ё/gi) && !text.match(/ё/gi)) {
