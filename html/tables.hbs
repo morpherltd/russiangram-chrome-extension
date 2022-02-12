@@ -207,22 +207,22 @@
         <tbody>
 
         {{#with full}}
-            {{> masculine-feminine-neuter-plural-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
+            {{> adjective-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
+            {{> adjective-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
+            {{> adjective-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
+            {{> adjective-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
+            {{> adjective-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
+            {{> adjective-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
         {{/with}}
 
         {{#if short}}
             {{#with short}}
-                {{> masculine-feminine-neuter-plural-tr title="Short"}}
+                {{> adjective-tr title="Short"}}
             {{/with}}
         {{/if}}
         
@@ -230,7 +230,7 @@
     </table>
 {{/inline}}
 
-{{#*inline "masculine-feminine-neuter-plural-tr"}}
+{{#*inline "adjective-tr"}}
     <tr>
         <th colspan="2">
             {{title}}
@@ -546,17 +546,17 @@
         </thead>
         <tbody>
 
-        {{> masculine-feminine-neuter-plural-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
+        {{> adjective-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
+        {{> adjective-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
+        {{> adjective-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
+        {{> adjective-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
+        {{> adjective-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
+        {{> adjective-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
 
         </tbody>
     </table>
