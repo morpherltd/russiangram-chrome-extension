@@ -225,7 +225,18 @@
                 {{> adjective-tr title="Short"}}
             {{/with}}
         {{/if}}
-        
+
+        {{#if comparative}}
+            <tr>
+                <th colspan="2">
+                    Comparative
+                </th>
+                <td colspan="4" class="composed">
+                    {{{chain 'stressed' 'join' comparative}}}
+                </td>
+            </tr>
+        {{/if}}
+
         </tbody>
     </table>
 {{/inline}}
