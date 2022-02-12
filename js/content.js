@@ -285,16 +285,12 @@ function getSelectedText() {
 
 function loadPopupContentCallback(response, msg) {
     if (response.err) {
-        $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+        showPopup(response.err);
 
-        showPopup(
-            '<div class="popover-body"><div class="text-danger">' +
-            response.err + '</div></div>',
-            msg.word,
-        );
+        $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
         return;
     }
-    showPopup(response.content, msg.word);
+    showPopup(response.content);
 
     msg.lemma = response.content.split('<br/>')[0];
 
