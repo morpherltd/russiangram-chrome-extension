@@ -220,10 +220,12 @@
             {{> masculine-feminine-neuter-plural-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
         {{/with}}
 
-        {{#with short}}
-            {{> masculine-feminine-neuter-plural-tr title="Short"}}
-        {{/with}}
-
+        {{#if short}}
+            {{#with short}}
+                {{> masculine-feminine-neuter-plural-tr title="Short"}}
+            {{/with}}
+        {{/if}}
+        
         </tbody>
     </table>
 {{/inline}}
