@@ -1,5 +1,4 @@
 var waitResponseClass = chrome.runtime.id + '-wait-response';
-var processing = false;
 
 function injectCSS() {
     $.ajax({
@@ -38,12 +37,18 @@ function injectCSS() {
 }
 
 function injectJs() {
+    if ($('.morpher-script').length > 0) {
+        App.config.debug && console.log('Scripts are already injected.');
+        return false;
+    }
+
     $.ajax({
         url: chrome.extension.getURL('js/bootstrap.min.js'),
         success: function(data) {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'bs_script';
+            scriptTag.classList.add('morpher-script');
             document.body.appendChild(scriptTag);
         },
     });
@@ -53,125 +58,126 @@ function injectJs() {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'hb_script';
+            scriptTag.classList.add('morpher-script');
             document.body.appendChild(scriptTag);
 
-            Handlebars.registerHelper('upper', function(aString) {
-                return aString.toUpperCase();
-            });
-
-            Handlebars.registerHelper('lower', function(aString) {
-                return aString.toLowerCase();
-            });
-
-            Handlebars.registerHelper('stressed', stressedString);
-
-            Handlebars.registerHelper('join', function(array) {
-                return '<div class="value">' +
-                    array.join('</div><div class="value">') + '</div>';
-            });
-
-            Handlebars.registerHelper('first', function(array) {
-                return array[0];
-            });
-
-            Handlebars.registerHelper('chain', function() {
-                var helpers = [];
-                var args = Array.prototype.slice.call(arguments);
-                var argsLength = args.length;
-                var index;
-                var arg;
-
-                for (index = 0, arg = args[index];
-                    index < argsLength;
-                    arg = args[++index]) {
-                    if (Handlebars.helpers[arg]) {
-                        helpers.push(Handlebars.helpers[arg]);
-                    } else {
-                        args = args.slice(index);
-                        break;
-                    }
-                }
-
-                while (helpers.length) {
-                    args = [helpers.pop().apply(Handlebars.helpers, args)];
-                }
-
-                return args.shift();
-            });
-
-            Handlebars.registerHelper('compare',
-                function(lvalue, operator, rvalue, options) {
-
-                    if (arguments.length < 3) {
-                        throw new Error(
-                            'Handlebars Helper \'compare\' needs 2 parameters');
-                    }
-
-                    if (options === undefined) {
-                        options = rvalue;
-                        rvalue = operator;
-                        operator = '===';
-                    }
-
-                    var operators = {
-                        '==': function(l, r) {
-                            return l == r;
-                        },
-                        '===': function(l, r) {
-                            return l === r;
-                        },
-                        '!=': function(l, r) {
-                            return l != r;
-                        },
-                        '!==': function(l, r) {
-                            return l !== r;
-                        },
-                        '<': function(l, r) {
-                            return l < r;
-                        },
-                        '>': function(l, r) {
-                            return l > r;
-                        },
-                        '<=': function(l, r) {
-                            return l <= r;
-                        },
-                        '>=': function(l, r) {
-                            return l >= r;
-                        },
-                        'typeof': function(l, r) {
-                            return typeof l == r;
-                        },
-                    };
-
-                    if (!operators[operator]) {
-                        throw new Error(
-                            'Handlebars Helper \'compare\' doesn\'t know the operator ' +
-                            operator);
-                    }
-
-                    var result = operators[operator](lvalue, rvalue);
-
-                    if (result) {
-                        return options.fn(this);
-                    } else {
-                        return options.inverse(this);
-                    }
-
-                }
-            );
+            Handlebars.registerHelper('upper', handlebarsHelper.upper);
+            Handlebars.registerHelper('lower', handlebarsHelper.lower);
+            Handlebars.registerHelper('stressed', handlebarsHelper.stressedString);
+            Handlebars.registerHelper('join', handlebarsHelper.join);
+            Handlebars.registerHelper('first', handlebarsHelper.first);
+            Handlebars.registerHelper('chain', handlebarsHelper.chain);
+            Handlebars.registerHelper('compare', handlebarsHelper.compare);
         },
     });
 }
 
-function stressedString(str) {
-    return str.replace(
-        /((.)(\u0301))/mg,
-        '<span class="stressed">$2</span>'
-    );
-}
+var handlebarsHelper = {
+    stressedString: function(str) {
+        return str.replace(
+            /((.)(\u0301))/mg,
+            '<span class="stressed">$2</span>'
+        );
+    },
+    compare: function(lvalue, operator, rvalue, options) {
 
-function unstressedString(str) {
-    return str.replace(/(<span class="stressed">(.+)<\/span>)/mg, '$2\u0301');
+        if (arguments.length < 3) {
+            throw new Error(
+                'Handlebars Helper \'compare\' needs 2 parameters');
+        }
+
+        if (options === undefined) {
+            options = rvalue;
+            rvalue = operator;
+            operator = '===';
+        }
+
+        var operators = {
+            '==': function(l, r) {
+                return l == r;
+            },
+            '===': function(l, r) {
+                return l === r;
+            },
+            '!=': function(l, r) {
+                return l != r;
+            },
+            '!==': function(l, r) {
+                return l !== r;
+            },
+            '<': function(l, r) {
+                return l < r;
+            },
+            '>': function(l, r) {
+                return l > r;
+            },
+            '<=': function(l, r) {
+                return l <= r;
+            },
+            '>=': function(l, r) {
+                return l >= r;
+            },
+            'typeof': function(l, r) {
+                return typeof l == r;
+            },
+        };
+
+        if (!operators[operator]) {
+            throw new Error(
+                'Handlebars Helper \'compare\' doesn\'t know the operator ' +
+                operator);
+        }
+
+        var result = operators[operator](lvalue, rvalue);
+
+        if (result) {
+            return options.fn(this);
+        } else {
+            return options.inverse(this);
+        }
+    },
+    chain: function() {
+        var helpers = [];
+        var args = Array.prototype.slice.call(arguments);
+        var argsLength = args.length;
+        var index;
+        var arg;
+
+        for (index = 0, arg = args[index];
+            index < argsLength;
+            arg = args[++index]) {
+            if (Handlebars.helpers[arg]) {
+                helpers.push(Handlebars.helpers[arg]);
+            } else {
+                args = args.slice(index);
+                break;
+            }
+        }
+
+        while (helpers.length) {
+            args = [helpers.pop().apply(Handlebars.helpers, args)];
+        }
+
+        return args.shift();
+    },
+    first: function(array) {
+        return array[0];
+    },
+    join: function(array) {
+        return '<div class="value-group"><div class="value">' +
+            array.join('</div><div class="value">') + '</div></div>';
+    },
+    lower: function(aString) {
+        return aString.toLowerCase();
+    },
+    upper: function upper(aString) {
+        return aString.toUpperCase();
+    },
+};
+
+function deleteJs() {
+    $('#bs_script').remove();
+    $('#hb_script').remove();
 }
 
 function showPopup(content) {
@@ -180,7 +186,7 @@ function showPopup(content) {
     }
 
     if ($('.morpher-popup').length > 0) {
-        App.config.debug && console.log('Rejected. Popup already exists.')
+        App.config.debug && console.log('Rejected. Popup already exists.');
         return false;
     }
 
@@ -188,7 +194,7 @@ function showPopup(content) {
     $el.parent().addClass('twbs');
 
     $el.popover({
-        title: stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
+        title: handlebarsHelper.stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
         container: 'body',
         html: true,
         placement: 'bottom',
@@ -206,15 +212,15 @@ function showPopup(content) {
     $el.on('hidden.bs.popover', function() {
         App.debug && console.log('hidden.bs.popover');
         $(this).popover('dispose');
-        $('#bs_script').remove();
-        $('#hb_script').remove();
+        deleteJs();
     });
 
-    $(document).on('click', function(e) {
+    $(document).on('mousedown', function(e) {
         var container = $('.morpher-popup.popover');
 
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             App.debug && console.log('hide by outer click');
+            $el.parent().removeClass('twbs');
             $el.popover('hide');
         }
     });
@@ -234,7 +240,12 @@ function handle(selectedText) {
 
     var beforeText = beforeWordRange.toString();
     var afterWordRange = document.createRange();
-    afterWordRange.setStart(range.startContainer, range.endOffset);
+    afterWordRange.setStart(
+        range.startContainer,
+        range.endOffset > range.startContainer.length
+            ? range.startContainer.length
+            : range.endOffset
+    );
     afterWordRange.setEndAfter(document.body.lastChild);
 
     var afterText = afterWordRange.toString();
@@ -255,7 +266,7 @@ function handle(selectedText) {
     try {
         range.surroundContents(highlightDiv);
     } catch (exception) {
-        $(range.commonAncestorContainer).wrap(wrapper);
+        $(range.endContainer).before(wrapper);
     }
 
     loadPopupContent({
@@ -274,14 +285,12 @@ function getSelectedText() {
 
 function loadPopupContentCallback(response, msg) {
     if (response.err) {
-        showPopup(
-            '<div class="popover-body"><div class="text-danger">' +
-            response.err + '</div></div>',
-            msg.word,
-        );
+        showPopup(response.err);
+
+        $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
         return;
     }
-    showPopup(response.content, msg.word);
+    showPopup(response.content);
 
     msg.lemma = response.content.split('<br/>')[0];
 
@@ -289,6 +298,8 @@ function loadPopupContentCallback(response, msg) {
 }
 
 function loadDeclensionTableCallback(response) {
+    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+
     if (response.err) {
         $('.morpher-popup.popover').append(
             '<div class="popover-body"><div class="text-danger">' +
@@ -297,8 +308,6 @@ function loadDeclensionTableCallback(response) {
         return;
     }
 
-    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
-
     if (response.content.length > 0) {
         var data = repackResponseData(response);
 
@@ -306,7 +315,8 @@ function loadDeclensionTableCallback(response) {
         var compiled = Handlebars.compile(tpl);
 
         if ($('.morpher-popup.popover #declensionTables').length > 0) {
-            App.config.debug && console.log('Rejected. Declension tables already exists.')
+            App.config.debug &&
+            console.log('Rejected. Declension tables already exists.');
             return false;
         }
         $('.morpher-popup.popover').append(compiled(data));
@@ -337,13 +347,13 @@ function repackResponseData(response) {
 }
 
 function highlightLemma(lemma) {
-    var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+    var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е').toLowerCase();
 
     $('.morpher-popup tbody .value').
         each(function(index, element) {
             var $el = $(element);
             var text = $el.text();
-            var cleanText = text.replace(/ё/gi, 'е');
+            var cleanText = text.replace(/ё/gi, 'е').toLowerCase();
 
             if (cleanText === cleanLemma) {
                 if (lemma.match(/ё/gi) && !text.match(/ё/gi)) {
@@ -486,13 +496,42 @@ function loadDeclensionTable(msg, callBack) {
 
 $(document).on('ready', function() {
     var $body = $('body');
-    $body.on('dblclick', function(e) {
-        if (e.altKey) {
-            var selectedText = getSelectedText();
-            App.config.debug && console.log('Selected text: ' + selectedText);
-            handle(selectedText);
+    var altKey = false;
+
+    $body.on('keydown', function(e) {
+        if (e.keyCode === 18) {
+            App.config.debug && console.log('Pressed Alt.');
+            altKey = true;
         }
     });
+
+    $body.on('keyup', function(e) {
+        if (e.keyCode === 18) {
+            App.config.debug && console.log('Not pressed Alt.');
+            altKey = false;
+        }
+    });
+
+    $body.on('selectstart', function() {
+        $body.off('mouseup', onMouseUp);
+        $body.on('mouseup', onMouseUp);
+    });
+
+    $body.on('select', onMouseUp);
+
+    function onMouseUp(e) {
+        if (e.altKey || altKey) {
+            $body.off('mouseup', onMouseUp);
+            var selectedText = getSelectedText();
+
+            if (selectedText.split(' ').length > App.config.maxPhraseLength) {
+                App.config.debug && console.log('Rejected! Too many words.');
+                return;
+            }
+
+            handle(selectedText);
+        }
+    }
 });
 
 /* Add CSS files */

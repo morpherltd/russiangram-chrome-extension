@@ -1,23 +1,25 @@
 {{#*inline "type-noun"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+                <span class="lemma">
+                    {{#if singular.nominative}}
+                        {{{chain 'stressed' 'first' singular.nominative}}}
+                    {{else}}
+                        {{{chain 'stressed' 'first' plural.nominative}}}
+                    {{/if}}
+                </span>
+            {{#if isProper}}proper{{/if}} {{lower type}}{{#if gender}}, {{lower gender}}{{/if}}, {{#if isAnimate}}
+            animate{{else}}inanimate{{/if}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' singular.nominative}}}</span>
-                {{#if isProper}}proper{{/if}} {{lower type}}, {{lower gender}}, {{#if isAnimate}}
-                animate{{else}}inanimate{{/if}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> noun-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> noun-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -113,23 +115,19 @@
 {{/inline}}
 
 {{#*inline "type-surname"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' masculine.nominative}}}</span> {{lower type}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' masculine.nominative}}}</span> {{lower type}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> surname-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> surname-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -179,23 +177,19 @@
 {{/inline}}
 
 {{#*inline "type-adjective"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' full.masculine.nominative}}}</span> {{lower type}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' full.masculine.nominative}}}</span> {{lower type}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> adjective-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> adjective-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -213,28 +207,41 @@
         <tbody>
 
         {{#with full}}
-            {{> masculine-feminine-neuter-plural-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
+            {{> adjective-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
+            {{> adjective-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
+            {{> adjective-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
+            {{> adjective-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
+            {{> adjective-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
 
-            {{> masculine-feminine-neuter-plural-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
+            {{> adjective-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
         {{/with}}
 
-        {{#with short}}
-            {{> masculine-feminine-neuter-plural-tr title="Short"}}
-        {{/with}}
+        {{#if short}}
+            {{#with short}}
+                {{> adjective-tr title="Short"}}
+            {{/with}}
+        {{/if}}
+
+        {{#if comparative}}
+            <tr>
+                <th colspan="2">
+                    Comparative
+                </th>
+                <td colspan="4" class="composed">
+                    {{{chain 'stressed' 'join' comparative}}}
+                </td>
+            </tr>
+        {{/if}}
 
         </tbody>
     </table>
 {{/inline}}
 
-{{#*inline "masculine-feminine-neuter-plural-tr"}}
+{{#*inline "adjective-tr"}}
     <tr>
         <th colspan="2">
             {{title}}
@@ -255,32 +262,41 @@
 {{/inline}}
 
 {{#*inline "type-uninflected"}}
-    <p>
-        <span class="lemma">{{{chain 'stressed' 'first' form}}}</span>
-        {{#each partsOfSpeech}}
-            {{{lower this}}}{{#unless @last}};{{/unless}}
-        {{/each}}
-    </p>
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' form}}}</span>
+            {{#each partsOfSpeech}}
+                {{{lower this}}}{{#unless @last}};{{/unless}}
+            {{/each}}
+        </button>
+    </div>
+
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            <p class="text-info">
+                This word is not inflected.
+            </p>
+        </div>
+    </div>
 {{/inline}}
 
 {{#*inline "type-numeral"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' cases.nominative}}}</span> {{lower type}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' cases.nominative}}}</span> {{lower type}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> numeral-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> numeral-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -318,25 +334,21 @@
 {{/inline}}
 
 {{#*inline "type-verb"}}
-    <div class="accordion-item">
+    <div class="accordion-header" id="headingDeclensionTable{{@index}}">
+        <button class="accordion-button" type="button" data-toggle="collapse"
+                data-target="#declensionTable{{@index}}"
+                aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
+            <span class="lemma">{{{chain 'stressed' 'first' infinitive}}}</span>
+            {{lower type}}{{#if aspect}}, {{lower aspect}}{{/if}},
+            {{#if isTransitive}} transitive{{else}} intransitive{{/if}}
+        </button>
+    </div>
 
-        <div class="accordion-header" id="headingDeclensionTable{{@index}}">
-            <button class="accordion-button" type="button" data-toggle="collapse"
-                    data-target="#declensionTable{{@index}}"
-                    aria-expanded="{{@first}}" aria-controls="declensionTable{{@index}}">
-                <span class="lemma">{{{chain 'stressed' 'first' infinitive}}}</span>
-                {{lower type}}{{#if aspect}}, {{lower aspect}}{{/if}},
-                {{#if isTransitive}} transitive{{else}} intransitive{{/if}}
-            </button>
+    <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
+         aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
+        <div class="accordion-body">
+            {{> verb-table}}
         </div>
-
-        <div id="declensionTable{{@index}}" class="accordion-collapse collapse{{#if @first}} show {{/if}}"
-             aria-labelledby="headingDeclensionTable{{@index}}" data-parent="#declensionTables">
-            <div class="accordion-body">
-                {{> verb-table}}
-            </div>
-        </div>
-
     </div>
 {{/inline}}
 
@@ -545,17 +557,17 @@
         </thead>
         <tbody>
 
-        {{> masculine-feminine-neuter-plural-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
+        {{> adjective-tr title="Nominative" masculine=masculine.nominative feminine=feminine.nominative neuter=neuter.nominative plural=plural.nominative}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
+        {{> adjective-tr title="Genitive" masculine=masculine.genitive feminine=feminine.genitive neuter=neuter.genitive plural=plural.genitive}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
+        {{> adjective-tr title="Dative" masculine=masculine.dative feminine=feminine.dative neuter=neuter.dative plural=plural.dative}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
+        {{> adjective-tr title="Accusative" masculine=masculine.accusative feminine=feminine.accusative neuter=neuter.accusative plural=plural.accusative}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
+        {{> adjective-tr title="Instrumental" masculine=masculine.instrumental feminine=feminine.instrumental neuter=neuter.instrumental plural=plural.instrumental}}
 
-        {{> masculine-feminine-neuter-plural-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
+        {{> adjective-tr title="Locative" masculine=masculine.locative feminine=feminine.locative neuter=neuter.locative plural=plural.locative}}
 
         </tbody>
     </table>
@@ -566,31 +578,33 @@
         <div class="accordion" id="declensionTables">
 
             {{#each variants}}
+                <div class="accordion-item">
 
-                {{#compare type '===' 'Noun'}}
-                    {{> type-noun}}
-                {{/compare}}
+                    {{#compare type '===' 'Noun'}}
+                        {{> type-noun}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Surname'}}
-                    {{> type-surname}}
-                {{/compare}}
+                    {{#compare type '===' 'Surname'}}
+                        {{> type-surname}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Adjective'}}
-                    {{> type-adjective}}
-                {{/compare}}
+                    {{#compare type '===' 'Adjective'}}
+                        {{> type-adjective}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Uninflected'}}
-                    {{> type-uninflected}}
-                {{/compare}}
+                    {{#compare type '===' 'Uninflected'}}
+                        {{> type-uninflected}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Numeral'}}
-                    {{> type-numeral}}
-                {{/compare}}
+                    {{#compare type '===' 'Numeral'}}
+                        {{> type-numeral}}
+                    {{/compare}}
 
-                {{#compare type '===' 'Verb'}}
-                    {{> type-verb}}
-                {{/compare}}
+                    {{#compare type '===' 'Verb'}}
+                        {{> type-verb}}
+                    {{/compare}}
 
+                </div>
             {{/each}}
 
         </div>
