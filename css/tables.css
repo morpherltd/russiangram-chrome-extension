@@ -33,7 +33,7 @@
 }
 
 .morpher-popup td, .morpher-popup th {
-    border: 1px solid rgb(223, 192, 163);
+    border: 0.5px solid rgb(223, 192, 163);
     padding-left: 1ex;
     padding-right: 1ex;
     color: rgb(46, 46, 46);
@@ -45,7 +45,7 @@
 
 .morpher-popup th {
     text-align: left;
-    border: 1px solid rgb(167, 129, 95);
+    border: 0.5px solid rgb(167, 129, 95);
     color: rgb(116, 80, 48);
     background-color: rgb(246, 226, 205);
 }
