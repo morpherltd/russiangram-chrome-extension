@@ -574,39 +574,37 @@
 {{/inline}}
 
 {{#if variants }}
-    <div class="popover-body">
-        <div class="accordion" id="declensionTables">
+    <div class="accordion" id="declensionTables">
 
-            {{#each variants}}
-                <div class="accordion-item">
+        {{#each variants}}
+            <div class="accordion-item">
 
-                    {{#compare type '===' 'Noun'}}
-                        {{> type-noun}}
-                    {{/compare}}
+                {{#compare type '===' 'Noun'}}
+                    {{> type-noun}}
+                {{/compare}}
 
-                    {{#compare type '===' 'Surname'}}
-                        {{> type-surname}}
-                    {{/compare}}
+                {{#compare type '===' 'Surname'}}
+                    {{> type-surname}}
+                {{/compare}}
 
-                    {{#compare type '===' 'Adjective'}}
-                        {{> type-adjective}}
-                    {{/compare}}
+                {{#compare type '===' 'Adjective'}}
+                    {{> type-adjective}}
+                {{/compare}}
 
-                    {{#compare type '===' 'Uninflected'}}
-                        {{> type-uninflected}}
-                    {{/compare}}
+                {{#compare type '===' 'Uninflected'}}
+                    {{> type-uninflected}}
+                {{/compare}}
 
-                    {{#compare type '===' 'Numeral'}}
-                        {{> type-numeral}}
-                    {{/compare}}
+                {{#compare type '===' 'Numeral'}}
+                    {{> type-numeral}}
+                {{/compare}}
 
-                    {{#compare type '===' 'Verb'}}
-                        {{> type-verb}}
-                    {{/compare}}
+                {{#compare type '===' 'Verb'}}
+                    {{> type-verb}}
+                {{/compare}}
 
-                </div>
-            {{/each}}
+            </div>
+        {{/each}}
 
-        </div>
     </div>
 {{/if}}

@@ -1,4 +1,8 @@
 var waitResponseClass = chrome.runtime.id + '-wait-response';
+var anchorClass = 'anchor-' + chrome.runtime.id;
+
+var loadPopupContentRequest = null;
+var loadDeclensionTableRequest = null;
 
 function injectCSS() {
     $.ajax({
@@ -44,6 +48,7 @@ function injectJs() {
 
     $.ajax({
         url: chrome.extension.getURL('js/bootstrap.min.js'),
+        async: false,
         success: function(data) {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
@@ -54,6 +59,7 @@ function injectJs() {
     });
     $.ajax({
         url: chrome.extension.getURL('js/handlebars.min.js'),
+        async: false,
         success: function(data) {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
@@ -180,11 +186,7 @@ function deleteJs() {
     $('#hb_script').remove();
 }
 
-function showPopup(content) {
-    if ('' === content.replace('<br/>', '').trim()) {
-        return false;
-    }
-
+function initializePopup() {
     if ($('.morpher-popup').length > 0) {
         App.config.debug && console.log('Rejected. Popup already exists.');
         return false;
@@ -194,13 +196,15 @@ function showPopup(content) {
     $el.parent().addClass('twbs');
 
     $el.popover({
-        title: handlebarsHelper.stressedString(content).replace('<br/>', '&nbsp;&nbsp;'),
+        title: '<div id="morpher-popup-header"  class="spinner-container"><div class="dot-carousel"></div></div>',
+        content: '<div id="morpher-popup-body" class="spinner-container"><div class="dot-carousel"></div></div>',
         container: 'body',
         html: true,
         placement: 'bottom',
         trigger: 'manual',
-        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div></div>',
+        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>',
     });
+
     $el.on('shown.bs.popover', function() {
         $(document).one('keyup', function(event) {
             if (event.which === 27) {
@@ -209,8 +213,13 @@ function showPopup(content) {
             }
         });
     });
+
     $el.on('hidden.bs.popover', function() {
         App.debug && console.log('hidden.bs.popover');
+
+        var $anchor = $('.' + anchorClass);
+        $anchor.replaceWith($anchor.html());
+
         $(this).popover('dispose');
         deleteJs();
     });
@@ -224,6 +233,64 @@ function showPopup(content) {
             $el.popover('hide');
         }
     });
+}
+
+function initializeAdditionPopup(lemma, data) {
+
+    var $el = $('#declensionTables');
+
+    var options = {
+        container: '.morpher-popup #declensionTables',
+        html: true,
+        content: 'Loading...',
+        trigger: 'manual',
+        template: '<div class="popover child-popover" role="tooltip">' +
+            '<div class="arrow"></div>' +
+            '<div class="popover-header"></div>' +
+            '<div class="popover-body"></div></div>',
+        popperConfig: {
+            placement: 'right-end',
+        },
+    };
+
+    $el.popover(options);
+
+    $('[data-toggle="addition-popup"]').on('click', function(event) {
+        event.preventDefault();
+
+        console.log('click', $(this).attr('href'));
+        $el.popover('show');
+
+        var selector = $(this).attr('href');
+        var content = $(selector).prop('outerHTML');
+        $el.find('.popover-body').html(content);
+    });
+
+    $el.on('click', function(e) {
+        var $target = $(e.target);
+
+        var isToggle = $target.attr('data-toggle') === 'addition-popup';
+        var isChildOfToggle = $target.closest(
+            '[data-toggle="addition-popup"]').length > 0;
+
+        var isPopup = $target.hasClass('child-popover');
+        var isChildOfPopup = $target.closest('.child-popover').length > 0;
+
+        if (!isToggle && !isChildOfToggle && !isPopup && !isChildOfPopup) {
+            $el.popover('hide');
+        }
+    });
+
+    var $cell = findCellByText(lemma, $('.participle-tables'));
+    if (
+        $cell && data.variants[0] !== undefined
+        && data.variants[0].type === 'Verb'
+    ) {
+        var content = $cell.closest('table').prop('outerHTML');
+
+        $el.popover('show');
+        $el.find('.popover-body').html(content);
+    }
 }
 
 function handle(selectedText) {
@@ -269,42 +336,116 @@ function handle(selectedText) {
         $(range.endContainer).before(wrapper);
     }
 
-    loadPopupContent({
+    initializePopup();
+
+    setTimeout(function() {
+        showPopup();
+    }, 500);
+
+    var msg = {
         context: context,
         index: context.indexOf(selectedText),
         word: selectedText,
-    }, loadPopupContentCallback);
+    };
+
+    loadPopupContent(msg, loadedPopupContentCallback);
+    loadDeclensionTable(msg, loadedDeclensionTableCallback);
 }
 
-function getSelectedText() {
-    var selection = window.getSelection && window.getSelection().toString();
-    selection = selection.trim();
+function loadPopupContent(msg, callBack) {
+    if (null !== loadPopupContentRequest) {
+        loadPopupContentRequest.abort();
+    }
 
-    return selection;
+    loadPopupContentRequest = $.ajax({
+        url: App.config.getPopupInfo.url,
+        data: {
+            context: msg.context,
+            index: msg.index,
+        },
+        method: 'POST',
+        timeout: App.config.getPopupInfo.timeout,
+        success: function(data) {
+            callBack({content: data}, msg);
+        },
+        error: function(request, errorTextStatus) {
+            if (errorTextStatus === 'abort') {
+                return;
+            }
+
+            callBack({
+                err: 'Could not reach russiangram.com',
+            });
+        },
+    });
 }
 
-function loadPopupContentCallback(response, msg) {
+function loadDeclensionTable(msg, callBack) {
+    if (null !== loadDeclensionTableRequest) {
+        loadDeclensionTableRequest.abort();
+    }
+
+    loadDeclensionTableRequest = $.ajax({
+        url: App.config.declensionTable.url,
+        data: {
+            word: msg.word,
+        },
+        method: 'GET',
+        timeout: App.config.getPopupInfo.timeout,
+        success: function(data) {
+            callBack({
+                content: data,
+                word: msg.word,
+                lemma: msg.lemma,
+            });
+        },
+        error: function(request, errorTextStatus) {
+            if (errorTextStatus === 'abort') {
+                return;
+            }
+
+            callBack({
+                err: 'Could not reach morpher.ru',
+            });
+        },
+    });
+}
+
+function loadedPopupContentCallback(response, msg) {
+    showPopup();
+
+    var $popupHeaderInner = $('.morpher-popup #morpher-popup-header');
+    var $popupHeader = $popupHeaderInner.parent();
+
     if (response.err) {
-        showPopup(response.err);
-
-        $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+        $popupHeader.fadeOut(0, function() {
+            $popupHeader.html(response.err).hide();
+            $popupHeader.fadeIn(500);
+        });
         return;
     }
-    showPopup(response.content);
+
+    var title = handlebarsHelper.stressedString(response.content).replace('<br/>', '&nbsp;&nbsp;');
+
+    $popupHeader.fadeOut(0, function() {
+        $popupHeader.html(title).hide();
+        $popupHeader.fadeIn(500);
+    });
 
     msg.lemma = response.content.split('<br/>')[0];
-
-    loadDeclensionTable(msg, loadDeclensionTableCallback);
 }
 
-function loadDeclensionTableCallback(response) {
-    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass);
+function loadedDeclensionTableCallback(response) {
+    showPopup();
+
+    var $popupBodyInner = $('.morpher-popup #morpher-popup-body');
+    var $popupBody = $popupBodyInner.parent();
 
     if (response.err) {
-        $('.morpher-popup.popover').append(
-            '<div class="popover-body"><div class="text-danger">' +
-            response.err + '</div></div>'
-        );
+        $popupBody.fadeOut(0, function() {
+            $popupBody.html('<div class="text-danger">' + response.err + '</div>').hide();
+            $popupBody.fadeIn(500);
+        });
         return;
     }
 
@@ -319,14 +460,44 @@ function loadDeclensionTableCallback(response) {
             console.log('Rejected. Declension tables already exists.');
             return false;
         }
-        $('.morpher-popup.popover').append(compiled(data));
+
+        $popupBody.fadeOut(0, function() {
+            $popupBody.html((compiled(data))).hide();
+            $popupBody.fadeIn(500);
+        });
 
         if (response.word) {
             highlightLemma(response.word);
         }
 
         initializeAdditionPopup(response.word, data);
+    } else {
+        $popupBody.animate({
+            opacity: 0,
+        }, {
+            queue: true,
+            duration: 500,
+        }).animate({
+            width: 0,
+            height: 0,
+            padding: 0,
+        }, {
+            queue: true,
+            duration: 250,
+            done: $popupBody.html()
+        });
     }
+}
+
+function showPopup() {
+    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass).addClass(anchorClass);
+}
+
+function getSelectedText() {
+    var selection = window.getSelection && window.getSelection().toString();
+    selection = selection.trim();
+
+    return selection;
 }
 
 function repackResponseData(response) {
@@ -390,108 +561,6 @@ function loadTemplate() {
         ),
         async: false,
     }).responseText;
-}
-
-function initializeAdditionPopup(lemma, data) {
-
-    var $el = $('#declensionTables');
-
-    var options = {
-        container: '.morpher-popup #declensionTables',
-        html: true,
-        content: 'Loading...',
-        trigger: 'manual',
-        offset: 150,
-        template: '<div class="popover child-popover" role="tooltip">' +
-            '<div class="arrow"></div>' +
-            '<div class="popover-header"></div>' +
-            '<div class="popover-body"></div></div>',
-        popperConfig: {
-            placement: 'right-end',
-        },
-    };
-
-    $el.popover(options);
-
-    $('[data-toggle="addition-popup"]').on('click', function(event) {
-        event.preventDefault();
-
-        console.log('click', $(this).attr('href'));
-        $el.popover('show');
-
-        var selector = $(this).attr('href');
-        var content = $(selector).prop('outerHTML');
-        $el.find('.popover-body').html(content);
-    });
-
-    $el.on('click', function(e) {
-        var $target = $(e.target);
-
-        var isToggle = $target.attr('data-toggle') === 'addition-popup';
-        var isChildOfToggle = $target.closest(
-            '[data-toggle="addition-popup"]').length > 0;
-
-        var isPopup = $target.hasClass('child-popover');
-        var isChildOfPopup = $target.closest('.child-popover').length > 0;
-
-        if (!isToggle && !isChildOfToggle && !isPopup && !isChildOfPopup) {
-            $el.popover('hide');
-        }
-    });
-
-    var $cell = findCellByText(lemma, $('.participle-tables'));
-    if (
-        $cell && data.variants[0] !== undefined
-        && data.variants[0].type === 'Verb'
-    ) {
-        var content = $cell.closest('table').prop('outerHTML');
-
-        $el.popover('show');
-        $el.find('.popover-body').html(content);
-    }
-}
-
-function loadPopupContent(msg, callBack) {
-    $.ajax({
-        url: App.config.getPopupInfo.url,
-        data: {
-            context: msg.context,
-            index: msg.index,
-        },
-        method: 'POST',
-        timeout: App.config.getPopupInfo.timeout,
-        success: function(data) {
-            callBack({content: data}, msg);
-        },
-        error: function() {
-            callBack({
-                err: 'Could not reach russiangram.com',
-            });
-        },
-    });
-}
-
-function loadDeclensionTable(msg, callBack) {
-    $.ajax({
-        url: App.config.declensionTable.url,
-        data: {
-            word: msg.word,
-        },
-        method: 'GET',
-        timeout: App.config.getPopupInfo.timeout,
-        success: function(data) {
-            callBack({
-                content: data,
-                word: msg.word,
-                lemma: msg.lemma,
-            });
-        },
-        error: function() {
-            callBack({
-                err: 'Could not reach morpher.ru',
-            });
-        },
-    });
 }
 
 $(document).on('ready', function() {
