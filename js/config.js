@@ -6,7 +6,7 @@ App.config = {
         timeout: 60 * 1000,
     },
     declensionTable: {
-        url: 'https://dev5.morpher.ru/lemmy',
+        url: 'https://api.russiangram.com/lemmy',
         timeout: 60 * 1000,
     },
     parsePhrase: {

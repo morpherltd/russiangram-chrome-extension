@@ -35,7 +35,7 @@
   "content_security_policy": "script-src 'unsafe-eval' 'self'; object-src 'self'",
   "permissions": [
     "activeTab",
-    "https://dev5.morpher.ru/*",
+    "https://api.russiangram.com/*",
     "https://russiangram.com/*"
   ],
   "web_accessible_resources": [
