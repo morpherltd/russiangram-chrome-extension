@@ -1,0 +1,23 @@
+.russiangram .popover {
+    max-width: none;
+    min-width: 150px;
+}
+
+.russiangram .popover > .arrow {
+    border-width: 1px;
+}
+
+.russiangram .popover-header {
+    display: block !important;
+}
+
+.russiangram .popover-header:last-child {
+    border-bottom-left-radius: calc(0.3rem - 1px);
+    border-bottom-right-radius: calc(0.3rem - 1px);
+}
+
+.russiangram .popover-body {
+    display: block !important;
+    padding: .5rem .75rem;
+    color: #212529;
+}

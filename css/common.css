@@ -1,0 +1,38 @@
+.russiangram {
+    all: initial;
+}
+
+.russiangram * {
+    all: unset;
+}
+
+.russiangram {
+    font-size: 16px;
+    color: #333333;
+}
+
+.russiangram .link {
+    color: #0052cc;
+}
+
+.russiangram .stressed {
+    color: indianred;
+}
+
+.russiangram .lemma {
+    font-weight: bold;
+    margin-right: 2ex;
+}
+
+.russiangram .text-info {
+    padding: 0.5ex 2ex;
+}
+
+.russiangram .fade {
+    opacity: 1;
+    transition: opacity .15s linear;
+}
+
+.russiangram [hidden] {
+    display: none;
+}
