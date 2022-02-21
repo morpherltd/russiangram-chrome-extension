@@ -484,7 +484,7 @@ function loadedDeclensionTableCallback(response) {
         }, {
             queue: true,
             duration: 250,
-            done: $popupBody.html()
+            done: $popupBody.html(),
         });
     }
 }
@@ -566,6 +566,11 @@ function loadTemplate() {
 $(document).on('ready', function() {
     var $body = $('body');
     var altKey = false;
+
+    $(window).on('blur', function() {
+        App.config.debug && console.log('Reset Alt.');
+        altKey = false;
+    });
 
     $body.on('keydown', function(e) {
         if (e.keyCode === 18) {
