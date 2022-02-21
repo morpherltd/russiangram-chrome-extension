@@ -1,50 +1,57 @@
-var waitResponseClass = chrome.runtime.id + '-wait-response';
-var anchorClass = 'anchor-' + chrome.runtime.id;
+var anchorClass = 'anchor-russiangram' + chrome.runtime.id;
+var anchorSelector = '.' + anchorClass;
+var uniqClass = 'russiangram-' + chrome.runtime.id;
+var uniqSelector = '.' + uniqClass;
+var waitClass = 'wait-' + chrome.runtime.id;
+var waitSelector = '.' + waitClass;
+
+var container = document.createElement('div');
+container.classList.add(uniqClass);
+document.querySelector('body').appendChild(container);
 
 var loadPopupContentRequest = null;
 var loadDeclensionTableRequest = null;
 
-function injectCSS() {
+function injectStyles() {
+    injectCSSFile('css/common.css', false);
+    injectCSSFile('css/bootstrap.css', false);
+    injectCSSFile('css/popover.css', false);
+    injectCSSFile('css/spinner.css', false);
+    injectCSSFile('css/accordion.css', false);
+    injectCSSFile('css/tables.css', false);
+}
+
+function injectCSSFile(path, async) {
     $.ajax({
-        url: chrome.extension.getURL('css/twbs.min.css'),
+        url: chrome.extension.getURL(path),
+        async: async,
         success: function(data) {
-            var css = data.replace(/\.\.\/fonts/g,
-                chrome.extension.getURL('fonts'));
             var styleNode = document.createElement('style');
             styleNode.type = 'text/css';
-            styleNode.textContent = css;
-            document.head.appendChild(styleNode);
-        },
-    });
-    $.ajax({
-        url: chrome.extension.getURL('css/font-awesome.min.css'),
-        success: function(data) {
-            var faCSS = data.replace(/\.\.\/fonts/g,
-                chrome.extension.getURL('fonts'));
-            var styleNode = document.createElement('style');
-            styleNode.type = 'text/css';
-            styleNode.textContent = faCSS;
-            document.head.appendChild(styleNode);
-        },
-    });
-    $.ajax({
-        url: chrome.extension.getURL('css/tables.css'),
-        success: function(data) {
-            var faCSS = data.replace(/\.\.\/fonts/g,
-                chrome.extension.getURL('fonts'));
-            var styleNode = document.createElement('style');
-            styleNode.type = 'text/css';
-            styleNode.textContent = faCSS;
-            document.head.appendChild(styleNode);
+            styleNode.textContent = data.replace(/russiangram/gi, uniqClass);
+            styleNode.classList.add('russiangram-style');
+            document.querySelector('body').appendChild(styleNode);
         },
     });
 }
 
 function injectJs() {
-    if ($('.morpher-script').length > 0) {
+    if ($('.russiangram-script').length > 0) {
         App.config.debug && console.log('Scripts are already injected.');
         return false;
     }
+
+    $.ajax({
+        url: chrome.extension.getURL('js/jquery.min.js'),
+        async: false,
+        success: function(data) {
+            var scriptTag = document.createElement('script');
+            scriptTag.innerHTML = data;
+            scriptTag.id = 'jq_script';
+            scriptTag.classList.add('russiangram-script');
+            document.querySelector('body').appendChild(scriptTag);
+        },
+    });
 
     $.ajax({
         url: chrome.extension.getURL('js/bootstrap.min.js'),
@@ -53,10 +60,11 @@ function injectJs() {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'bs_script';
-            scriptTag.classList.add('morpher-script');
-            document.body.appendChild(scriptTag);
+            scriptTag.classList.add('russiangram-script');
+            document.querySelector(uniqSelector).appendChild(scriptTag);
         },
     });
+
     $.ajax({
         url: chrome.extension.getURL('js/handlebars.min.js'),
         async: false,
@@ -64,8 +72,8 @@ function injectJs() {
             var scriptTag = document.createElement('script');
             scriptTag.innerHTML = data;
             scriptTag.id = 'hb_script';
-            scriptTag.classList.add('morpher-script');
-            document.body.appendChild(scriptTag);
+            scriptTag.classList.add('russiangram-script');
+            document.querySelector(uniqSelector).appendChild(scriptTag);
 
             Handlebars.registerHelper('upper', handlebarsHelper.upper);
             Handlebars.registerHelper('lower', handlebarsHelper.lower);
@@ -187,22 +195,21 @@ function deleteJs() {
 }
 
 function initializePopup() {
-    if ($('.morpher-popup').length > 0) {
+    if ($(uniqSelector + ' .popover').length > 0) {
         App.config.debug && console.log('Rejected. Popup already exists.');
         return false;
     }
 
-    var $el = $('.' + waitResponseClass);
-    $el.parent().addClass('twbs');
+    var $el = $(anchorSelector);
 
     $el.popover({
-        title: '<div id="morpher-popup-header"  class="spinner-container"><div class="dot-carousel"></div></div>',
-        content: '<div id="morpher-popup-body" class="spinner-container"><div class="dot-carousel"></div></div>',
-        container: 'body',
+        title: '<div class="spinner-container"><div class="dot-carousel"></div></div>',
+        content: '<div class="spinner-container"><div class="dot-carousel"></div></div>',
+        container: uniqSelector,
         html: true,
         placement: 'bottom',
         trigger: 'manual',
-        template: '<div class="popover morpher-popup" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>',
+        template: '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-header"></div><div class="popover-body"></div></div>',
     });
 
     $el.on('shown.bs.popover', function() {
@@ -217,7 +224,7 @@ function initializePopup() {
     $el.on('hidden.bs.popover', function() {
         App.debug && console.log('hidden.bs.popover');
 
-        var $anchor = $('.' + anchorClass);
+        var $anchor = $(anchorSelector);
         $anchor.replaceWith($anchor.html());
 
         $(this).popover('dispose');
@@ -225,22 +232,20 @@ function initializePopup() {
     });
 
     $(document).on('mousedown', function(e) {
-        var container = $('.morpher-popup.popover');
+        var container = $(uniqSelector + ' .popover');
 
         if (!container.is(e.target) && container.has(e.target).length === 0) {
             App.debug && console.log('hide by outer click');
-            $el.parent().removeClass('twbs');
             $el.popover('hide');
         }
     });
 }
 
 function initializeAdditionPopup(lemma, data) {
-
-    var $el = $('#declensionTables');
+    var $el = $(uniqSelector + ' #declensionTables');
 
     var options = {
-        container: '.morpher-popup #declensionTables',
+        container: uniqSelector + ' #declensionTables',
         html: true,
         content: 'Loading...',
         trigger: 'manual',
@@ -281,7 +286,7 @@ function initializeAdditionPopup(lemma, data) {
         }
     });
 
-    var $cell = findCellByText(lemma, $('.participle-tables'));
+    var $cell = findCellByText(lemma, $(uniqSelector + ' .participle-tables'));
     if (
         $cell && data.variants[0] !== undefined
         && data.variants[0].type === 'Verb'
@@ -327,7 +332,7 @@ function handle(selectedText) {
     App.config.debug && console.log('context: ' + context);
     App.config.debug && console.log('index: ' + index);
 
-    var wrapper = '<span class="' + waitResponseClass + '"></span>';
+    var wrapper = '<span class="' + waitClass + ' ' + anchorClass + '"></span>';
     var highlightDiv = $(wrapper)[0];
 
     try {
@@ -405,7 +410,7 @@ function loadDeclensionTable(msg, callBack) {
             }
 
             callBack({
-                err: 'Could not reach morpher.ru',
+                err: 'Could not reach russiangram.com',
             });
         },
     });
@@ -414,7 +419,7 @@ function loadDeclensionTable(msg, callBack) {
 function loadedPopupContentCallback(response, msg) {
     showPopup();
 
-    var $popupHeaderInner = $('.morpher-popup #morpher-popup-header');
+    var $popupHeaderInner = $(uniqSelector + ' .popover-header .spinner-container');
     var $popupHeader = $popupHeaderInner.parent();
 
     if (response.err) {
@@ -438,7 +443,7 @@ function loadedPopupContentCallback(response, msg) {
 function loadedDeclensionTableCallback(response) {
     showPopup();
 
-    var $popupBodyInner = $('.morpher-popup #morpher-popup-body');
+    var $popupBodyInner = $(uniqSelector + ' .popover-body .spinner-container');
     var $popupBody = $popupBodyInner.parent();
 
     if (response.err) {
@@ -455,9 +460,8 @@ function loadedDeclensionTableCallback(response) {
         var tpl = loadTemplate();
         var compiled = Handlebars.compile(tpl);
 
-        if ($('.morpher-popup.popover #declensionTables').length > 0) {
-            App.config.debug &&
-            console.log('Rejected. Declension tables already exists.');
+        if ($(uniqSelector + '.popover #declensionTables').length > 0) {
+            App.config.debug && console.log('Rejected. Declension tables already exists.');
             return false;
         }
 
@@ -484,13 +488,14 @@ function loadedDeclensionTableCallback(response) {
         }, {
             queue: true,
             duration: 250,
-            done: $popupBody.html()
+            done: $popupBody.html(),
         });
     }
 }
 
 function showPopup() {
-    $('.' + waitResponseClass).popover('show').removeClass(waitResponseClass).addClass(anchorClass);
+    $(waitSelector).popover('show').removeClass(waitClass);
+    $(anchorClass).popover('update');
 }
 
 function getSelectedText() {
@@ -520,7 +525,7 @@ function repackResponseData(response) {
 function highlightLemma(lemma) {
     var cleanLemma = lemma.replace(/\u0301/mg, '').replace(/ё/gi, 'е').toLowerCase();
 
-    $('.morpher-popup tbody .value').
+    $(uniqSelector + ' tbody .value').
         each(function(index, element) {
             var $el = $(element);
             var text = $el.text();
@@ -537,13 +542,13 @@ function highlightLemma(lemma) {
 }
 
 function findCellByText(text, $container) {
-    text = text.replace(/\u0301/mg, '').replace(/ё/gi, 'е');
+    text = text.replace(/\u0301/mg, '').replace(/ё/gi, 'е').toLowerCase();
 
     var $cells = $container.find('.value');
 
     for (var i = 0; i < $cells.length; i++) {
         var $cell = $($cells[i]);
-        var cellText = $cell.text().replace(/ё/gi, 'е');
+        var cellText = $cell.text().replace(/ё/gi, 'е').toLowerCase();
 
         if (cellText === text) {
             return $cell;
@@ -604,4 +609,4 @@ $(document).on('ready', function() {
 });
 
 /* Add CSS files */
-injectCSS();
+injectStyles();
