@@ -2,6 +2,8 @@ var anchorClass = 'anchor-russiangram' + chrome.runtime.id;
 var anchorSelector = '.' + anchorClass;
 var uniqClass = 'russiangram-' + chrome.runtime.id;
 var uniqSelector = '.' + uniqClass;
+var waitClass = 'wait-' + chrome.runtime.id;
+var waitSelector = '.' + waitClass;
 
 var container = document.createElement('div');
 container.classList.add(uniqClass);
@@ -28,7 +30,7 @@ function injectCSSFile(path, async) {
             styleNode.type = 'text/css';
             styleNode.textContent = data.replace(/russiangram/gi, uniqClass);
             styleNode.classList.add('russiangram-style');
-            document.querySelector(uniqSelector).appendChild(styleNode);
+            document.querySelector('body').appendChild(styleNode);
         },
     });
 }
@@ -47,7 +49,7 @@ function injectJs() {
             scriptTag.innerHTML = data;
             scriptTag.id = 'jq_script';
             scriptTag.classList.add('russiangram-script');
-            document.querySelector(uniqSelector).appendChild(scriptTag);
+            document.querySelector('body').appendChild(scriptTag);
         },
     });
 
@@ -156,8 +158,8 @@ var handlebarsHelper = {
         var arg;
 
         for (index = 0, arg = args[index];
-             index < argsLength;
-             arg = args[++index]) {
+            index < argsLength;
+            arg = args[++index]) {
             if (Handlebars.helpers[arg]) {
                 helpers.push(Handlebars.helpers[arg]);
             } else {
@@ -330,7 +332,7 @@ function handle(selectedText) {
     App.config.debug && console.log('context: ' + context);
     App.config.debug && console.log('index: ' + index);
 
-    var wrapper = '<span class="' + anchorClass + '"></span>';
+    var wrapper = '<span class="' + waitClass + ' ' + anchorClass + '"></span>';
     var highlightDiv = $(wrapper)[0];
 
     try {
@@ -492,7 +494,8 @@ function loadedDeclensionTableCallback(response) {
 }
 
 function showPopup() {
-    $(anchorSelector).popover('show').removeClass(anchorClass);
+    $(waitSelector).popover('show').removeClass(waitClass);
+    $(anchorClass).popover('update');
 }
 
 function getSelectedText() {

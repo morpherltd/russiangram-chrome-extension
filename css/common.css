@@ -5,6 +5,10 @@
 .russiangram * {
     all: unset;
 }
+.russiangram div,
+.russiangram p {
+    display: block;
+}
 
 .russiangram {
     font-size: 16px;
@@ -13,6 +17,7 @@
 
 .russiangram .link {
     color: #0052cc;
+    cursor: pointer;
 }
 
 .russiangram .stressed {

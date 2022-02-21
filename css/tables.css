@@ -35,6 +35,7 @@
 
 .russiangram th {
     text-align: left;
+    font-weight: bold;
     border: 0.5px solid rgb(167, 129, 95);
     color: rgb(116, 80, 48);
     background-color: rgb(246, 226, 205);
