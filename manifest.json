@@ -31,9 +31,13 @@
       "all_frames": true
     }
   ],
+  "background": {
+    "scripts": ["js/context-menu.js"]
+  },
   "incognito": "spanning",
   "content_security_policy": "script-src 'unsafe-eval' 'self'; object-src 'self'",
   "permissions": [
+    "contextMenus",
     "activeTab",
     "https://api.russiangram.com/*",
     "https://russiangram.com/*"
