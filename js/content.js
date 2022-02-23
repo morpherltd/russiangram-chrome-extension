@@ -154,16 +154,14 @@ var handlebarsHelper = {
         var helpers = [];
         var args = Array.prototype.slice.call(arguments);
         var argsLength = args.length;
-        var index;
+        var i;
         var arg;
 
-        for (index = 0, arg = args[index];
-            index < argsLength;
-            arg = args[++index]) {
+        for (i = 0, arg = args[i]; i < argsLength; arg = args[++i]) {
             if (Handlebars.helpers[arg]) {
                 helpers.push(Handlebars.helpers[arg]);
             } else {
-                args = args.slice(index);
+                args = args.slice(i);
                 break;
             }
         }
@@ -298,9 +296,15 @@ function initializeAdditionPopup(lemma, data) {
     }
 }
 
-function handle(selectedText) {
+function handle() {
+    var selectedText = getSelectedText();
     if (selectedText === '') {
         return false;
+    }
+
+    if (selectedText.split(' ').length > App.config.maxPhraseLength) {
+        App.config.debug && console.log('Rejected! Too many words.');
+        return;
     }
 
     var range = window.getSelection().getRangeAt(0);
@@ -569,25 +573,27 @@ function loadTemplate() {
 }
 
 $(document).on('ready', function() {
+    var ALT_KEY = 'Alt';
+
     var $body = $('body');
-    var altKey = false;
+    var isPressedAlt = false;
 
     $(window).on('blur', function() {
         App.config.debug && console.log('Reset Alt.');
-        altKey = false;
+        isPressedAlt = false;
     });
 
     $body.on('keydown', function(e) {
-        if (e.keyCode === 18) {
+        if (e.key === ALT_KEY) {
             App.config.debug && console.log('Pressed Alt.');
-            altKey = true;
+            isPressedAlt = true;
         }
     });
 
     $body.on('keyup', function(e) {
-        if (e.keyCode === 18) {
+        if (e.key === ALT_KEY) {
             App.config.debug && console.log('Not pressed Alt.');
-            altKey = false;
+            isPressedAlt = false;
         }
     });
 
@@ -599,18 +605,18 @@ $(document).on('ready', function() {
     $body.on('select', onMouseUp);
 
     function onMouseUp(e) {
-        if (e.altKey || altKey) {
+        if (e.altKey || isPressedAlt) {
             $body.off('mouseup', onMouseUp);
-            var selectedText = getSelectedText();
-
-            if (selectedText.split(' ').length > App.config.maxPhraseLength) {
-                App.config.debug && console.log('Rejected! Too many words.');
-                return;
-            }
-
-            handle(selectedText);
+            handle();
         }
     }
+
+    chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
+        if (msg.action === 'lookUp') {
+            handle();
+            sendResponse('accepted');
+        }
+    });
 });
 
 /* Add CSS files */
