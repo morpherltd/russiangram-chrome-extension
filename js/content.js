@@ -30,7 +30,7 @@ function injectCSSFile(path, async) {
             styleNode.type = 'text/css';
             styleNode.textContent = data.replace(/russiangram/gi, uniqClass);
             styleNode.classList.add('russiangram-style');
-            document.querySelector('body').appendChild(styleNode);
+            document.querySelector('head').appendChild(styleNode);
         },
     });
 }
