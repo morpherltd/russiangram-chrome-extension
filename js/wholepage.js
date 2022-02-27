@@ -1,6 +1,6 @@
 chrome.extension.onMessage.addListener(
     function(request, sender, sendResponse) {
-        if (request.msg === 'get_content') {
+        if (request.msg === 'stress-mark-whole-page') {
             var tagList = document.getElementsByTagName('*');
 
             var xmlhttp = new XMLHttpRequest();

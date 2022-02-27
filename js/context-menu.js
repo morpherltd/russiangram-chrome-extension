@@ -27,7 +27,7 @@ chrome.contextMenus.onClicked.addListener(function(clickData) {
             currentWindow: true,
         }, function(tabs) {
             chrome.tabs.sendMessage(tabs[0].id, {
-                msg: 'get_content',
+                msg: 'stress-mark-whole-page',
             });
         });
     }
