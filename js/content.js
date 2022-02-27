@@ -296,7 +296,7 @@ function initializeAdditionPopup(lemma, data) {
     }
 }
 
-function handle() {
+function lookup() {
     var selectedText = getSelectedText();
     if (selectedText === '') {
         return false;
@@ -607,13 +607,13 @@ $(document).on('ready', function() {
     function onMouseUp(e) {
         if (e.altKey || isPressedAlt) {
             $body.off('mouseup', onMouseUp);
-            handle();
+            lookup();
         }
     }
 
     chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
         if (msg.action === 'lookUp') {
-            handle();
+            lookup();
             sendResponse('accepted');
         }
     });
