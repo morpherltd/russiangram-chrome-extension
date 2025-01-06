@@ -1,14 +1,14 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "RussianGram",
   "description": "Adds stress marks to Russian websites",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "icons": {
     "128": "icon/icon.png",
     "16": "icon/icon.png",
     "48": "icon/icon.png"
   },
-  "browser_action": {
+  "action": {
     "default_icon": {
       "19": "icon/icon.png",
       "38": "icon/icon.png"
@@ -33,20 +33,31 @@
     }
   ],
   "background": {
-    "scripts": ["js/context-menu.js"]
+    "service_worker": "js/context-menu.js"
   },
   "incognito": "spanning",
-  "content_security_policy": "script-src 'unsafe-eval' 'self'; object-src 'self'",
+  "content_security_policy": {
+    "script-src": "self",
+    "object-src": "self"
+  },
   "permissions": [
     "contextMenus",
-    "activeTab",
+    "activeTab"
+  ],
+  "host_permissions": [
     "https://api.russiangram.com/*",
     "https://russiangram.com/*"
   ],
   "web_accessible_resources": [
-    "html/*",
-    "css/*",
-    "js/*",
-    "fonts/*"
+    {
+      "resources": [
+        "html/*",
+        "css/*",
+        "js/*",
+        "fonts/*"
+      ],
+      "matches": [],
+      "extension_ids": []
+    }
   ]
 }
