@@ -10,7 +10,7 @@
   },
   "scripts": {
     "clean": "node build.js clean",
-    "precompile": "handlebars src/html/*.hbs -f src/js/tables.js",
+    "precompile": "handlebars src/html/tables.hbs -f src/js/tables.js",
     "build": "npm run clean && npm run precompile && node build.js"
   }
 }
