@@ -1,35 +1,29 @@
-chrome.extension.onMessage.addListener(
+chrome.runtime.onMessage.addListener(
     function(request, sender, sendResponse) {
         if (request.msg === 'stress-mark-whole-page') {
             var tagList = document.getElementsByTagName('*');
-
-            var xmlhttp = new XMLHttpRequest();
-            xmlhttp.onreadystatechange = function() {
-                if (xmlhttp.readyState === 4) {
-                    if (xmlhttp.status === 200) {
-                        var data = JSON.parse(xmlhttp.responseText);
-                        updateText(data, tagList);
-                    } else {
-                        alert('Cannot reach russiangram.com');
-                    }
-                }
-            };
-
             var collectedText = collectText(tagList);
             var data = JSON.stringify(collectedText);
 
-            xmlhttp.open('POST',
-                'https://russiangram.com/translate/Default.aspx',
-                true,
-            );
-            xmlhttp.setRequestHeader('Content-type',
-                'application/x-www-form-urlencoded');
-            xmlhttp.send(data);
-            sendResponse({data: 'success'});
+            fetch('https://russiangram.com/translate/Default.aspx', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: data
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Cannot reach russiangram.com');
+                }
+                return response.json();
+            })
+            .then(data => updateText(data, tagList))
+            .catch(error => alert(error.message));
 
+            sendResponse({data: 'success'});
             return true;
         }
-
         return false;
     }
 );

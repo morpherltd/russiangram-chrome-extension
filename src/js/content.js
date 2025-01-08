@@ -23,7 +23,7 @@ function injectStyles() {
 
 function injectCSSFile(path, async) {
     $.ajax({
-        url: chrome.extension.getURL(path),
+        url: chrome.runtime.getURL(path),
         async: async,
         success: function(data) {
             var styleNode = document.createElement('style');
@@ -35,55 +35,14 @@ function injectCSSFile(path, async) {
     });
 }
 
-function injectJs() {
-    if ($('.russiangram-script').length > 0) {
-        App.config.debug && console.log('Scripts are already injected.');
-        return false;
-    }
-
-    $.ajax({
-        url: chrome.extension.getURL('js/jquery.min.js'),
-        async: false,
-        success: function(data) {
-            var scriptTag = document.createElement('script');
-            scriptTag.innerHTML = data;
-            scriptTag.id = 'jq_script';
-            scriptTag.classList.add('russiangram-script');
-            document.querySelector('body').appendChild(scriptTag);
-        },
-    });
-
-    $.ajax({
-        url: chrome.extension.getURL('js/bootstrap.min.js'),
-        async: false,
-        success: function(data) {
-            var scriptTag = document.createElement('script');
-            scriptTag.innerHTML = data;
-            scriptTag.id = 'bs_script';
-            scriptTag.classList.add('russiangram-script');
-            document.querySelector(uniqSelector).appendChild(scriptTag);
-        },
-    });
-
-    $.ajax({
-        url: chrome.extension.getURL('js/handlebars.min.js'),
-        async: false,
-        success: function(data) {
-            var scriptTag = document.createElement('script');
-            scriptTag.innerHTML = data;
-            scriptTag.id = 'hb_script';
-            scriptTag.classList.add('russiangram-script');
-            document.querySelector(uniqSelector).appendChild(scriptTag);
-
-            Handlebars.registerHelper('upper', handlebarsHelper.upper);
-            Handlebars.registerHelper('lower', handlebarsHelper.lower);
-            Handlebars.registerHelper('stressed', handlebarsHelper.stressedString);
-            Handlebars.registerHelper('join', handlebarsHelper.join);
-            Handlebars.registerHelper('first', handlebarsHelper.first);
-            Handlebars.registerHelper('chain', handlebarsHelper.chain);
-            Handlebars.registerHelper('compare', handlebarsHelper.compare);
-        },
-    });
+function initHandlebars() {
+    Handlebars.registerHelper('upper', handlebarsHelper.upper);
+    Handlebars.registerHelper('lower', handlebarsHelper.lower);
+    Handlebars.registerHelper('stressed', handlebarsHelper.stressedString);
+    Handlebars.registerHelper('join', handlebarsHelper.join);
+    Handlebars.registerHelper('first', handlebarsHelper.first);
+    Handlebars.registerHelper('chain', handlebarsHelper.chain);
+    Handlebars.registerHelper('compare', handlebarsHelper.compare);
 }
 
 var handlebarsHelper = {
@@ -308,8 +267,6 @@ function lookup() {
     }
 
     var range = window.getSelection().getRangeAt(0);
-    //injecting bootstrap on demand to avoid conflict with websites
-    injectJs();
     var beforeWordRange = document.createRange();
     beforeWordRange.setStartBefore(document.body.firstChild);
     beforeWordRange.setEnd(range.startContainer, range.startOffset);
@@ -461,8 +418,7 @@ function loadedDeclensionTableCallback(response) {
     if (response.content.length > 0) {
         var data = repackResponseData(response);
 
-        var tpl = loadTemplate();
-        var compiled = Handlebars.compile(tpl);
+        var compiled = Handlebars.templates["tables.hbs"];
 
         if ($(uniqSelector + '.popover #declensionTables').length > 0) {
             App.config.debug && console.log('Rejected. Declension tables already exists.');
@@ -565,7 +521,7 @@ function findCellByText(text, $container) {
 function loadTemplate() {
     return $.ajax({
         type: 'GET',
-        url: chrome.extension.getURL(
+        url: chrome.runtime.getURL(
             '/html/tables.hbs'
         ),
         async: false,
@@ -573,6 +529,8 @@ function loadTemplate() {
 }
 
 $(document).on('ready', function() {
+    initHandlebars();
+
     var ALT_KEY = 'Alt';
 
     var $body = $('body');
@@ -610,13 +568,13 @@ $(document).on('ready', function() {
             lookup();
         }
     }
+});
 
-    chrome.extension.onMessage.addListener(function(msg, sender, sendResponse) {
-        if (msg.action === 'lookUp') {
-            lookup();
-            sendResponse('accepted');
-        }
-    });
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+    if (msg.action === 'lookUp') {
+        lookup();
+        sendResponse('accepted');
+    }
 });
 
 /* Add CSS files */
